@@ -34,3 +34,22 @@ python manage.py createsuperuser
 ```
 python manage.py runserver
 ```
+
+
+# Database
+At this first stage of development, Django's default database engine sqlite3 has been used for the convenience. The MongoDB will replace sqlite3 later, and documents will be used to store users' data for their flexibilities.
+
+
+# Security Considerations
+
+## Lift CORS restrictions
+
+1. This configuration has security issues and cannot be used in production environment
+
+2. Install `django-cors-headers` (in the `requirements.txt`)
+
+3. Add corsheaders to INSTALLED_APPS.
+
+4. Add CorsMiddleware to MIDDLEWARE.
+
+5. Allow all origins in development with CORS_ALLOW_ALL_ORIGINS = True
