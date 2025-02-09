@@ -9,7 +9,7 @@ venv/
 */migrations/*
 
 # Database
-db.sqlite3
+db.sqlite*
 
 # Python bytecode
 */__pycache__/*
