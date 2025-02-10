@@ -36,8 +36,21 @@ python manage.py runserver
 ```
 
 
+
 # Database
-At this first stage of development, Django's default database engine sqlite3 has been used for the convenience. The MongoDB will replace sqlite3 later, and documents will be used to store users' data for their flexibilities.
+
+## MongoDB is the choice
+User accounts (username and email) cannot be duplicated.
+
+## Redis may be added for fast real-time caching (optional)
+
+## MongoEngine + Django
+MongoEngine has been choosen for:
+- Object-Document Mapper (ODM)
+- More abstract and structured
+- Easier data modeling with Python classes
+- Indexes can be defined in models
+
 
 
 # Security Considerations

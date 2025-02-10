@@ -2,22 +2,44 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from accounts.serializers import UserSerializer
+from mongoengine import connect
+import datetime
 
+from accounts.models import UserProfile
+
+
+# Create a new user profile
 @api_view(['POST'])
-def signup(request):
+def create_user_profile(request):
+
     if request.method == 'POST':
-        # Initialize the serializer with the data received in the request
-        serializer = UserSerializer(data=request.data)
+        # Initialize the user_profile with the data received in the request
+        user_profile = UserProfile(
+            username=request.data.get('username'),
+            email=request.data.get('email'),
+            password=request.data.get('password'),
+            first_name=request.data.get('first_name'),
+            last_name=request.data.get('last_name')
+            # profile_picture='default.jpg',
+            # date_of_birth='1990-01-01',
+            # age=(datetime.date.today() - dob).days // 365,
+            # gender=gender,
+            # location=location,
+            # interests=interests,
+            # bio='This is my bio',
+            # age_range=(20, 30),
+            # preferred_genders=['Male', 'Female'],
+            # matched_users=[],
+            # pending_requests=[],
+            # blocked_users=[],
+            # last_active=datetime.datetime.now(),
+            # language_prefer='English',
+            # created_at=datetime.datetime.now()
+        )
 
-        # Validate the data
-        if serializer.is_valid():
-            # Save the data to the database
-            serializer.save()
-            return Response({
-                'message': 'User created successfully',
-                'data': serializer.data
-            }, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        user_profile.save()
+        return Response({
+            'message': 'User created successfully',
+        }, status=status.HTTP_201_CREATED)
 
-    
+
