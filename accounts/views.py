@@ -43,3 +43,24 @@ def create_user_profile(request):
         }, status=status.HTTP_201_CREATED)
 
 
+@api_view(['POST'])
+def user_login(request):
+    if request.method == 'POST':
+        username = request.data.get('username')
+        password = request.data.get('password')
+
+        try:
+            user_profile = UserProfile.objects.get(username=username)
+            if user_profile.check_password(password):
+                return Response({
+                    'message': 'Login successful',
+                    'user_id': str(user_profile.id)
+                }, status=status.HTTP_200_OK)
+            else:
+                return Response({
+                    'message': 'Invalid credentials'
+                }, status=status.HTTP_401_UNAUTHORIZED)
+        except UserProfile.DoesNotExist:
+            return Response({
+                'message': 'User not found'
+            }, status=status.HTTP_404_NOT_FOUND)
