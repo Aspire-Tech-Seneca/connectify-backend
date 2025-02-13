@@ -15,7 +15,7 @@ class UserProfile(me.Document):
         '''Set the password to the hashed version of raw_password'''
         self.password = make_password(raw_password)
 
-    def check_password(self, raw_password):
+    def verify_password(self, raw_password):
         '''Verify the provided password against the stored hashed password'''
         if not self.password:
             return False
