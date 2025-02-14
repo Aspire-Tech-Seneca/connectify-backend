@@ -1,0 +1,26 @@
+# Virtual environment
+venv/
+.venv/
+
+# Git files
+.git/
+
+# Django migration files
+*/migrations/*
+
+# Database
+db.sqlite*
+
+# Python bytecode
+*/__pycache__/*
+*.pyc
+*.pyo
+
+# Environment and sensitive information
+.env
+
+# IDE 
+.vscode/
+
+# OS
+.DS_Store
