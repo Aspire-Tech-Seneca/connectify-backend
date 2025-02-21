@@ -4,7 +4,7 @@ from datetime import datetime
 
 class UserProfile(me.Document):
     email = me.StringField(required=True, unique=True)
-    fullname = me.StringField(required=True)
+    fullname = me.StringField(max_length=50)
     # username = me.StringField(required=True, unique=True)
     password = me.StringField(required=True)  
     first_name = me.StringField(max_length=30)

@@ -1,9 +1,9 @@
 # Use a Python base image
-FROM python:3.13.1-slim-buster 
+FROM python:3.13-slim-bullseye 
 
 # Set environment variables (optional, but good practice)
-ENV PYTHONUNBUFFERED 1
-ENV DJANGO_SETTINGS_MODULE your_project.settings  # Replace your_project
+# ENV PYTHONUNBUFFERED=1
+# ENV DJANGO_SETTINGS_MODULE=project.settings  
 
 # Create a working directory inside the container
 WORKDIR /app
@@ -17,11 +17,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of your project code
 COPY . /app/
 
-# Collect static files 
-RUN python manage.py collectstatic --noinput
-
 # Run migrations (if needed)
-RUN python mongo-migrations.py/0002_populate_data.py
+RUN python mongo-migrations/0002_populate_data.py
 
 # Expose the port your Django app runs on (default is 8000)
 EXPOSE 8000

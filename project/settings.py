@@ -4,11 +4,11 @@ Django settings for connectify-backend project.
 from mongoengine import register_connection
 
 from pathlib import Path
-import environ
+# import environ
 
 # Initialise environment variables
-env = environ.Env()
-environ.Env.read_env()
+# env = environ.Env()
+# environ.Env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -18,11 +18,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('SECRET_KEY')
+# SECRET_KEY = env('SECRET_KEY')
+SECRET_KEY='_4jazjg@0osxrrc2rkl3a_mnztj!z6(#9)s2e3k_1w8+zn#-q$'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env('DEBUG')
-
+# DEBUG = env('DEBUG')
+DEBUG=True
 ALLOWED_HOSTS = []
 
 
@@ -79,8 +80,10 @@ WSGI_APPLICATION = 'project.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 # Connect to the MongoDB database
-MONGODB_URI = env('MONGODB_URI')
-register_connection(db='MatchingUpDB', host=MONGODB_URI, alias='default')
+# MONGODB_URI = env('MONGODB_URI')
+MONGODB_URI = "mongodb+srv://connectify_be_user:agJSfaOaLPVxtMYq@connectify.1wusf.mongodb.net/?retryWrites=true&w=majority&appName=Connectify"
+DB_NAME='MatchingUpDB'
+register_connection(db=DB_NAME, host=MONGODB_URI, alias='default')
 
 # DATABASES = {
 #     'default': {

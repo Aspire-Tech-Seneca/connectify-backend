@@ -1,11 +1,11 @@
 import os
 import sys
 
-import environ
+# import environ
 
-# Initialise environment variables
-env = environ.Env()
-environ.Env.read_env()
+# # Initialise environment variables
+# env = environ.Env()
+# environ.Env.read_env()
 
 
 # Add the project root to the Python path so you can import your models
@@ -14,7 +14,7 @@ import mongoengine
 from users.models import UserProfile
 
 def run_migration():
-    MONGODB_URI = env('MONGODB_URI')
+    MONGODB_URI = "mongodb+srv://connectify_be_user:agJSfaOaLPVxtMYq@connectify.1wusf.mongodb.net/?retryWrites=true&w=majority&appName=Connectify"
     mongoengine.connect(db='MatchingUpDB', host=MONGODB_URI, alias='default')  # Connect to your database
 
     for user in UserProfile.objects():
