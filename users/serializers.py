@@ -19,11 +19,11 @@ class UserSerializer(serializers.ModelSerializer):
         set to the user.
         """
         user = User.objects.create_user(
-            username=validated_data['username'],
+            # username=validated_data['username'],
             email=validated_data['email'],
             password=validated_data['password'],
-            first_name=validated_data.get('first_name', ''),
-            last_name=validated_data.get('last_name', ''),
+            # first_name=validated_data.get('first_name', ''),
+            # last_name=validated_data.get('last_name', ''),
             # validated_data['date_of_birth'],
             # validated_data['location'],
             # validated_data['profile_picture'],

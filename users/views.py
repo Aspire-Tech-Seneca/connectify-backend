@@ -2,25 +2,29 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 from mongoengine import connect
 import datetime
 
-from accounts.models import UserProfile
+from users.models import UserProfile
 
 
 # Create a new user profile
+@csrf_exempt  # Use with extreme caution in production!
 @api_view(['POST'])
 def create_user_profile(request):
 
     if request.method == 'POST':
         # Initialize the user_profile with the data received in the request
         user_profile = UserProfile(
-            username=request.data.get('username'),
+            # username=request.data.get('username'),
+            fullname=request.data.get('fullname'),
             email=request.data.get('email'),
             password=request.data.get('password'),
-            first_name=request.data.get('first_name'),
-            last_name=request.data.get('last_name')
+            age=request.data.get('age'),
+            # first_name=request.data.get('first_name'),
+            # last_name=request.data.get('last_name')
             # profile_picture='default.jpg',
             # date_of_birth='1990-01-01',
             # age=(datetime.date.today() - dob).days // 365,
@@ -47,14 +51,17 @@ def create_user_profile(request):
         }, status=status.HTTP_201_CREATED)
 
 
+@csrf_exempt  # Use with extreme caution in production!
 @api_view(['POST'])
 def user_login(request):
     if request.method == 'POST':
-        username = request.data.get('username')
+        # username = request.data.get('username')
+        email = request.data.get('email')
         password = request.data.get('password')
 
         try:
-            user_profile = UserProfile.objects.get(username=username)
+            # user_profile = UserProfile.objects.get(username=username)
+            user_profile = UserProfile.objects.get(email=email)
             if user_profile.verify_password(password):
                 # request.session['user_id'] = str(user_profile.id)
                 return Response({
