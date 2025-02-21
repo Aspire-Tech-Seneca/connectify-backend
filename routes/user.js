@@ -21,4 +21,33 @@ router.get('/profile', authMiddleware, async (req, res) => {
   }
 });
 
+// PUT /api/user/profile
+router.put('/profile', authMiddleware, async (req, res) => {
+    const { bio, picture } = req.body;
+  
+    try {
+      // Find user and update bio and picture
+      const updatedUser = await User.findByIdAndUpdate(
+        req.user.userId,
+        { bio, picture },
+        { new: true }
+      ).select('fullName age bio picture');
+  
+      if (!updatedUser) return res.status(404).json({ msg: 'User not found' });
+  
+      res.status(200).json({
+        msg: 'Profile updated successfully',
+        profile: {
+          name: updatedUser.fullName,
+          age: updatedUser.age,
+          bio: updatedUser.bio,
+          picture: updatedUser.picture
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send('Server error');
+    }
+  });  
+
 module.exports = router;
