@@ -5,7 +5,6 @@ from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.views.decorators.csrf import csrf_exempt
 
-from users.models import UserProfile
 from users.serializers import UserProfileSerializer
 
 import logging

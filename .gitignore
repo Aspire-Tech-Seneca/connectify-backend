@@ -13,6 +13,7 @@ db.sqlite*
 
 # Python bytecode
 */__pycache__/*
+project/__pycache__/*
 *.pyc
 *.pyo
 
