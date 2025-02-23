@@ -1,37 +1,38 @@
-from django.contrib.auth.models import User
 from rest_framework import serializers
+from .models import UserProfile
 
-
-class UserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True) # Ensure the password is write-only
-
+class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
-        fields = ['username', 'first_name', 'last_name', 
-                  'email', 'password', ]
-                #   'profile_picture', 'date_of_birth', 'location', 
-                #   'language_prefer', 'gender', 'date_joined', 
-                #   'interests', 'last_login',]
+        model = UserProfile
+        fields = ['email', 'fullname', 'age', ]
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
 
     def create(self, validated_data):
-        """
-        Create a new user instance, with the provided password being
-        set to the user.
-        """
-        user = User.objects.create_user(
-            # username=validated_data['username'],
-            email=validated_data['email'],
-            password=validated_data['password'],
-            # first_name=validated_data.get('first_name', ''),
-            # last_name=validated_data.get('last_name', ''),
-            # validated_data['date_of_birth'],
-            # validated_data['location'],
-            # validated_data['profile_picture'],
-            # validated_data['language_prefer'],
-            # validated_data['gender'],
-            # validated_data['date_joined'],
-            # validated_data['interests'],
-            # validated_data['last_login'],
+        # When creating a new user, make sure we don't explicitly set the username
+        email = validated_data.get('email')
+        user = UserProfile.objects.create_user(
+            username=email,  # Use email as username
+            email=email,
+            password=validated_data.get('password'),
+            fullname=validated_data.get('fullname'),
+            age=validated_data.get('age')
         )
         return user
+    
 
+    # Override default update method
+    def update(self, instance, validated_data):
+        # If a new username provided in the request data, use it as new username if it's unique
+        # If not, use new email provided in the request data as new username
+        # If neither in the request data, use the old username
+        print("==========Debugging: In the update method============")
+        print(f"Instance data: {instance}")
+        print(f"Validated data: {validated_data}")
+        # Update the fields of the instance
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+            print(f"Setting {attr} to {value} for {instance}")
+        instance.save()
+        return instance
