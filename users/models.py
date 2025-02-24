@@ -22,27 +22,15 @@ class UserInterest(models.Model):
 
 
 class UserProfile(AbstractUser):
-    # username, password, first_name, last_name are already included in AbstractUser
-    email = models.EmailField(unique=True)  # Make sure email is unique
-    username = models.CharField(max_length=150, blank=True, null=True) # Optional; email will be used if not specified
-    fullname = models.CharField(max_length=255, blank=True, null=True)
-    age = models.PositiveIntegerField(null=True, blank=True)
-    # profile_image = models.ImageField(upload_to='profile_images/', blank=True, default="")
-    
-    USERNAME_FIELD = 'email'  # Use email as the unique identifier for authentication
-    REQUIRED_FIELDS = []  
+    email = models.EmailField(unique=True)
+    fullname = models.CharField(max_length=255)
+    age = models.IntegerField(null=True, blank=True)
 
-    # Adding related_name for groups and user_permissions to avoid "reverse accessor clash" issues
-    groups = models.ManyToManyField(
-        'auth.Group',
-        related_name='userprofile_set',  # Avoid clash with auth.User
-        blank=True
-    )
-    user_permissions = models.ManyToManyField(
-        'auth.Permission',
-        related_name='userprofile_set',  # Avoid clash with auth.User
-        blank=True
-    )
-
+    def save(self, *args, **kwargs):
+        # Ensure the email is in lowercase
+        self.email = self.email.lower()
+        self.username = self.email
+        super().save(*args, **kwargs)
+        
     def __str__(self):
-        return self.username if self.username else self.email
+        return self.email

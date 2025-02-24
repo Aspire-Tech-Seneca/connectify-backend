@@ -12,23 +12,24 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 
-# import environ
+import environ
 
-# # Initialize environment variables
-# env = environ.Env()
-# # Read the .env file
-# environ.Env.read_env()
+# Initialize environment variables
+env = environ.Env()
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent
+environ.Env.read_env(BASE_DIR / '.env')
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-@glhbd3b#!$$m57(wv9#*rz8lj!%!xu*$oz$+i&1&kq-q&4^j_'
+# SECRET_KEY = 'django-insecure-@glhbd3b#!$$m57(wv9#*rz8lj!%!xu*$oz$+i&1&kq-q&4^j_'
+SECRET_KEY = env('SECRET_KEY')
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -51,6 +52,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_simplejwt.token_blacklist',
+
+    # Custom app(s)
     'users',
 ]
 
@@ -94,22 +97,26 @@ WSGI_APPLICATION = 'project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        # 'NAME': env('POSTGRE_DB'),             # The database name
-        # 'USER': env('POSTGRES_USER'),          # The PostgreSQL user
-        # 'PASSWORD': env('POSTGRES_PASSWORD'),  # The user's password
-        # 'HOST': env('POSTGRES_HOST'),          # Using Docker to run PostgreSQL
-        # 'PORT': env('POSTGRES_PORT'),          # Default PostgreSQL port
-        'NAME': 'users',             # The database name
-        'USER': 'admin',          # The PostgreSQL user
-        'PASSWORD': 'pa$$w0rd',  # The user's password
-        'HOST': 'localhost',          # Using Docker to run PostgreSQL
-        'PORT': '5432',          # Default PostgreSQL port
+        'NAME':     env('POSTGRES_DB'),        # The database name
+        'USER':     env('POSTGRES_USER'),      # The PostgreSQL user
+        'PASSWORD': env('POSTGRES_PASSWORD'),  # The user's password
+        'HOST':     env('POSTGRES_HOST'),      # Using Docker to run PostgreSQL
+        'PORT':     env('POSTGRES_PORT'),      # Default PostgreSQL port
     }
 }
 
 
+# Authentication
+AUTH_USER_MODEL = 'users.UserProfile'
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -125,7 +132,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
