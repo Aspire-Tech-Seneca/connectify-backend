@@ -12,15 +12,15 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 
-import environ
+# import environ
 
-# Initialize environment variables
-env = environ.Env()
+# # Initialize environment variables
+# env = environ.Env()
+# environ.Env.read_env()
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
-environ.Env.read_env(BASE_DIR / '.env')
 
 
 # Quick-start development settings - unsuitable for production
@@ -28,7 +28,8 @@ environ.Env.read_env(BASE_DIR / '.env')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # SECRET_KEY = 'django-insecure-@glhbd3b#!$$m57(wv9#*rz8lj!%!xu*$oz$+i&1&kq-q&4^j_'
-SECRET_KEY = env('SECRET_KEY')
+# SECRET_KEY = env('SECRET_KEY')
+SECRET_KEY = "django-insecure-@glhbd3b#!$$m57(wv9#*rz8lj!%!xu*$oz$+i&1&kq-q&4^j_"
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -97,11 +98,17 @@ WSGI_APPLICATION = 'project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME':     env('POSTGRES_DB'),        # The database name
-        'USER':     env('POSTGRES_USER'),      # The PostgreSQL user
-        'PASSWORD': env('POSTGRES_PASSWORD'),  # The user's password
-        'HOST':     env('POSTGRES_HOST'),      # Using Docker to run PostgreSQL
-        'PORT':     env('POSTGRES_PORT'),      # Default PostgreSQL port
+        'NAME':     "users",        # The database name
+        'USER':     "admin",        # The PostgreSQL user
+        'PASSWORD': "passw0rd",     # The PostgreSQL user's password
+        'HOST':     "localhost",     
+        'PORT':     "5432",         # Default PostgreSQL port
+
+        # 'NAME':     env('POSTGRES_DB'),        # The database name
+        # 'USER':     env('POSTGRES_USER'),      # The PostgreSQL user
+        # 'PASSWORD': env('POSTGRES_PASSWORD'),  # The user's password
+        # 'HOST':     env('POSTGRES_HOST'),      # Using Docker to run PostgreSQL
+        # 'PORT':     env('POSTGRES_PORT'),      # Default PostgreSQL port
     }
 }
 
