@@ -18,7 +18,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /app/
 
 # Run migrations (if needed)
-RUN python mongo-migrations/0002_populate_data.py
+RUN python manage.py migrate
 
 # Expose the port your Django app runs on (default is 8000)
 EXPOSE 8000

@@ -1,68 +1,11 @@
-# connectify-backend
+# Connectify Backend - Django + PostgreSQL
 
-## Create and activate virtual environment
-```
-cd connectify
-python3 -m venv venv
-source venv/bin/activate
-```
+## Development Environment Settings
 
-## Install requirements.txt
-```
-pip install -r requirements.txt
-```
+### 1. Django
 
-## Create your SECRET_KEY
-```
-python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
-```
+> **_Note:_** to install `psycopg2`, one of the most popular PostgreSQL adapters for using PostgreSQL in a Django project, the PostgreSQL development libraries (i.e., postgresql) or Python development headers that are needed to compile the C extensions in `psycopg2` is required on the host.
 
-Copy the secret key into .env
+### 2. PostgreSQL
 
-## Run migration
-```
-python manage.py migrate
-```
-
-## Create a superuser
-```
-python manage.py createsuperuser
-```
-
-
-## Run Django webserver
-```
-python manage.py runserver
-```
-
-
-
-# Database
-
-## MongoDB is the choice
-User accounts (username and email) cannot be duplicated.
-
-## Redis may be added for fast real-time caching (optional)
-
-## MongoEngine + Django
-MongoEngine has been choosen for:
-- Object-Document Mapper (ODM)
-- More abstract and structured
-- Easier data modeling with Python classes
-- Indexes can be defined in models
-
-
-
-# Security Considerations
-
-## Lift CORS restrictions
-
-1. This configuration has security issues and cannot be used in production environment
-
-2. Install `django-cors-headers` (in the `requirements.txt`)
-
-3. Add corsheaders to INSTALLED_APPS.
-
-4. Add CorsMiddleware to MIDDLEWARE.
-
-5. Allow all origins in development with CORS_ALLOW_ALL_ORIGINS = True
+During development phase, run a PostgreSQL container on the host with `.env` and `init.sh` in the database directory.

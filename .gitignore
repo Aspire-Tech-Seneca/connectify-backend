@@ -12,12 +12,15 @@ venv/
 db.sqlite*
 
 # Python bytecode
-*/__pycache__/*
+__pycache__/
+*/__pycache__/
+**/__pycache__/
 *.pyc
 *.pyo
 
 # Environment and sensitive information
-# .env ## Add environment file .env to git for deployment only
+.env
+database/.env
 
 # IDE 
 .vscode/

@@ -1,37 +1,33 @@
-from django.contrib.auth.models import User
 from rest_framework import serializers
+from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
 
+User = get_user_model()
 
-class UserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True) # Ensure the password is write-only
-
+class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 
-                  'email', 'password', ]
-                #   'profile_picture', 'date_of_birth', 'location', 
-                #   'language_prefer', 'gender', 'date_joined', 
-                #   'interests', 'last_login',]
+        fields = ['email', 'fullname', 'age', 'password']
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
+
 
     def create(self, validated_data):
-        """
-        Create a new user instance, with the provided password being
-        set to the user.
-        """
         user = User.objects.create_user(
-            # username=validated_data['username'],
-            email=validated_data['email'],
-            password=validated_data['password'],
-            # first_name=validated_data.get('first_name', ''),
-            # last_name=validated_data.get('last_name', ''),
-            # validated_data['date_of_birth'],
-            # validated_data['location'],
-            # validated_data['profile_picture'],
-            # validated_data['language_prefer'],
-            # validated_data['gender'],
-            # validated_data['date_joined'],
-            # validated_data['interests'],
-            # validated_data['last_login'],
+            username = validated_data.get('email'),  # Use email as username
+            email = validated_data.get('email'), 
+            password = validated_data.get('password'), 
+            age = validated_data.get('age'),
+            fullname = validated_data.get('fullname'),
         )
-        return user
+        return user    
 
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+
+    def validate_new_password(self, value):
+        validate_password(value)
+        return value
