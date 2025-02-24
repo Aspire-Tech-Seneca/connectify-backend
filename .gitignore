@@ -19,8 +19,8 @@ __pycache__/
 *.pyo
 
 # Environment and sensitive information
-.env
-database/.env
+# .env
+# database/.env
 
 # IDE 
 .vscode/
