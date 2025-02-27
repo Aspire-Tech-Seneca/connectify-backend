@@ -34,3 +34,13 @@ class UserProfile(AbstractUser):
         
     def __str__(self):
         return self.email
+
+
+class ProfileImage(models.Model):
+    user = models.OneToOneField(UserProfile, on_delete=models.CASCADE)
+    # profile_image = models.URLField(max_length=500, blank=True, null=True)
+    image_url = models.URLField(max_length=500, blank=True, null=True)
+
+    def __str__(self):
+        return f'{self.user.username} Profile Image'
+    

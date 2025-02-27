@@ -64,6 +64,7 @@ python manage.py runserver
 
 ### 5. Test
 
+#### User Account Management
 Test URL: http://127.0.0.1:8000/users/api_name. api_name list:
 ```
 create   # password: min_length = 6
@@ -92,3 +93,17 @@ When successfully login, two tokens will be returned with the response: refresh 
 
 
 > **_Note:_** Don't use too simple password (at least 6 characters) when you call `change_password` API. 
+
+
+#### Profile Image Management
+
+- Upload profile image
+  - http://localhost:8000/users/upload-profile-image/
+  - access token
+  - multipart/form-data
+
+
+- Retrieve profile image
+  - http://localhost:8000/users/retrieve-profile-image/
+  - access token
+
