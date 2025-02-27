@@ -66,15 +66,13 @@ python manage.py runserver
 
 Test URL: http://127.0.0.1:8000/users/api_name. api_name list:
 ```
-create
+create   # password: min_length = 6
 login
 logout
 update
 delete
 change-password
 ```
-
-> **_Note:_** Don't use two simple password when you call `change_password` API.
 
 When successfully login, two tokens will be returned with the response: refresh token and access token.
 
@@ -91,3 +89,6 @@ When successfully login, two tokens will be returned with the response: refresh 
   In the header of the request, add one more header:
   - Authorization
   - Bearer <the-access-token>
+
+
+> **_Note:_** Don't use too simple password (at least 6 characters) when you call `change_password` API. 
