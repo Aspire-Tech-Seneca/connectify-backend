@@ -8,6 +8,7 @@ class UserProfile(AbstractUser):
     email = models.EmailField(unique=True)
     fullname = models.CharField(max_length=255)
     age = models.IntegerField(null=True, blank=True)
+    bio = models.TextField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         # Ensure the email is in lowercase

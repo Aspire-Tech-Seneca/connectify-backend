@@ -121,7 +121,8 @@ python manage.py runserver
      {
        "fullname": "<new-name>",
        "email": "<new-name>@example.com",
-       "age": <new-age>
+       "age": <new-age>,
+       "bio": "This is my bio."
      }
      ```
 
