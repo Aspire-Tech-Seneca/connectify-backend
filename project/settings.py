@@ -27,7 +27,6 @@ BASE_DIR = Path(__file__).resolve().parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = 'django-insecure-@glhbd3b#!$$m57(wv9#*rz8lj!%!xu*$oz$+i&1&kq-q&4^j_'
 # SECRET_KEY = env('SECRET_KEY')
 SECRET_KEY = "django-insecure-@glhbd3b#!$$m57(wv9#*rz8lj!%!xu*$oz$+i&1&kq-q&4^j_"
 
@@ -55,7 +54,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
 
     # Custom app(s)
-    'users',
+    'users.apps.UsersConfig',
 ]
 
 MIDDLEWARE = [
@@ -174,3 +173,4 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
 }
+

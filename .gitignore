@@ -19,7 +19,7 @@ __pycache__/
 *.pyo
 
 # Environment and sensitive information
-# .env
+.env
 # database/.env
 
 # IDE 

@@ -64,17 +64,16 @@ python manage.py runserver
 
 ### 5. Test
 
+#### User Account Management
 Test URL: http://127.0.0.1:8000/users/api_name. api_name list:
 ```
-create
+create   # password: min_length = 6
 login
 logout
 update
 delete
 change-password
 ```
-
-> **_Note:_** Don't use two simple password when you call `change_password` API.
 
 When successfully login, two tokens will be returned with the response: refresh token and access token.
 
@@ -91,3 +90,39 @@ When successfully login, two tokens will be returned with the response: refresh 
   In the header of the request, add one more header:
   - Authorization
   - Bearer <the-access-token>
+
+
+> **_Note:_** Don't use too simple password (at least 6 characters) when you call `change_password` API. 
+
+An example of request body:
+
+```
+{
+  "old_password": "123abc",
+  "new_password": "123456",
+  "confirm_new_password": "123456"
+}
+```
+
+#### Profile Image Management
+
+- Upload profile image
+  - http://localhost:8000/users/upload-profile-image/
+  - access token
+  - multipart/form-data
+
+
+- Retrieve profile image
+  - http://localhost:8000/users/retrieve-profile-image/
+  - access token
+
+#### User interest selecting
+
+- Interest list (for frontend dropdown list)
+  - http://localhost:8000/users/interest-list/
+  - GET method
+  - no credential required
+
+- (Users) Interest select
+  - http://localhost:8000/users/retrieve-profile-image/
+  - access token
