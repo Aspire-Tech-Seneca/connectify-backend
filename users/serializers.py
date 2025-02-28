@@ -1,37 +1,52 @@
-from django.contrib.auth.models import User
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
+from django.contrib.auth import get_user_model
+from users.models import UserInterest
 
 
-class UserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True) # Ensure the password is write-only
+User = get_user_model()
+
+
+class UserRegisterSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(
+        required=True,
+        validators=[UniqueValidator(queryset=User.objects.all())]
+    )
+    password = serializers.CharField(write_only=True, required=True, min_length=6)
 
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 
-                  'email', 'password', ]
-                #   'profile_picture', 'date_of_birth', 'location', 
-                #   'language_prefer', 'gender', 'date_joined', 
-                #   'interests', 'last_login',]
+        fields = ['email', 'fullname', 'age', 'password']
 
     def create(self, validated_data):
-        """
-        Create a new user instance, with the provided password being
-        set to the user.
-        """
         user = User.objects.create_user(
-            # username=validated_data['username'],
-            email=validated_data['email'],
-            password=validated_data['password'],
-            # first_name=validated_data.get('first_name', ''),
-            # last_name=validated_data.get('last_name', ''),
-            # validated_data['date_of_birth'],
-            # validated_data['location'],
-            # validated_data['profile_picture'],
-            # validated_data['language_prefer'],
-            # validated_data['gender'],
-            # validated_data['date_joined'],
-            # validated_data['interests'],
-            # validated_data['last_login'],
+            username = validated_data.get('email'),  # Use email as username
+            email = validated_data.get('email'),
+            password = validated_data.get('password'),
+            age = validated_data.get('age'),
+            fullname = validated_data.get('fullname'),
         )
         return user
 
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'fullname', 'age', ]
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(write_only=True, required=True)
+    new_password = serializers.CharField(write_only=True, required=True)
+    confirm_new_password = serializers.CharField(write_only=True, required=True)
+
+    def validate(self, data):
+        if data['new_password'] != data['confirm_new_password']:
+            raise serializers.ValidationError({"confirm_new_password": "Passwords do not match."})
+        return data
+    
+
+class UserInterestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserInterest
+        fields = ['id', 'user', 'interest']

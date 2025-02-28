@@ -1,68 +1,128 @@
-# connectify-backend
+# Connectify Backend - Django + PostgreSQL
 
-## Create and activate virtual environment
+## Development Environment Settings
+
+### 1. Django
+
+> **_Note:_** to install `psycopg2`, one of the most popular PostgreSQL adapters for using PostgreSQL in a Django project, the PostgreSQL development libraries (i.e., postgresql) or Python development headers that are needed to compile the C extensions in `psycopg2` is required on the host.
+
+### 2. PostgreSQL
+
+During development phase, run a PostgreSQL container on the host with `.env` and `init.sh` in the database directory.
+
+## Steps to test code in this repo
+
+### 1. Run a PostgreSQL container
+
+Goto the database directory
+
+```cd database```
+
+Check if the `init.sh` file has execute permission, if not
+
+```chmod +x init.sh```
+
+Run docker container
+
+```./init.sh```
+
+
+### 2. Install all dependencies
+
+Go back to the root directory
+
+```cd ..```
+
+Python virtual environment (some minor differences if you are using Windows)
+
 ```
-cd connectify
-python3 -m venv venv
-source venv/bin/activate
+python -m venv .venv 
+source .venv/bin/activate
 ```
 
-## Install requirements.txt
-```
-pip install -r requirements.txt
-```
+Install dependencies
 
-## Create your SECRET_KEY
-```
-python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
-```
+```pip install -r requirements.txt```
 
-Copy the secret key into .env
 
-## Run migration
+### 3. Make migrations and migrate
+
+For development purpose, the .env file is included in the repo. It includes necessary environment variables to ensure code runs smoothly
+
 ```
+python manage.py makemigrations
 python manage.py migrate
 ```
 
-## Create a superuser
-```
-python manage.py createsuperuser
-```
+> **_Note:_** If something wrong when you run `python manage.py makemigrations`, try deleting `0001_initial.py` and run the command again.
 
+### 4. Run server
 
-## Run Django webserver
 ```
 python manage.py runserver
 ```
 
+### 5. Test
+
+#### User Account Management
+Test URL: http://127.0.0.1:8000/users/api_name. api_name list:
+```
+create   # password: min_length = 6
+login
+logout
+update
+delete
+change-password
+```
+
+When successfully login, two tokens will be returned with the response: refresh token and access token.
+
+- refresh token: test `logout`;
+
+  In the body of the request, add:
+    {
+      "refresh": "<the-refresh-token>"
+    }
 
 
-# Database
+- access token: test `update, delete, change-password`
 
-## MongoDB is the choice
-User accounts (username and email) cannot be duplicated.
-
-## Redis may be added for fast real-time caching (optional)
-
-## MongoEngine + Django
-MongoEngine has been choosen for:
-- Object-Document Mapper (ODM)
-- More abstract and structured
-- Easier data modeling with Python classes
-- Indexes can be defined in models
+  In the header of the request, add one more header:
+  - Authorization
+  - Bearer <the-access-token>
 
 
+> **_Note:_** Don't use too simple password (at least 6 characters) when you call `change_password` API. 
 
-# Security Considerations
+An example of request body:
 
-## Lift CORS restrictions
+```
+{
+  "old_password": "123abc",
+  "new_password": "123456",
+  "confirm_new_password": "123456"
+}
+```
 
-1. This configuration has security issues and cannot be used in production environment
+#### Profile Image Management
 
-2. Install `django-cors-headers` (in the `requirements.txt`)
+- Upload profile image
+  - http://localhost:8000/users/upload-profile-image/
+  - access token
+  - multipart/form-data
 
-3. Add corsheaders to INSTALLED_APPS.
 
-4. Add CorsMiddleware to MIDDLEWARE.
+- Retrieve profile image
+  - http://localhost:8000/users/retrieve-profile-image/
+  - access token
 
-5. Allow all origins in development with CORS_ALLOW_ALL_ORIGINS = True
+#### User interest selecting
+
+- Interest list (for frontend dropdown list)
+  - http://localhost:8000/users/interest-list/
+  - GET method
+  - no credential required
+
+- (Users) Interest select
+  - http://localhost:8000/users/retrieve-profile-image/
+  - access token
