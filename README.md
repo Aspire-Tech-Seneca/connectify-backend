@@ -56,73 +56,167 @@ python manage.py migrate
 
 > **_Note:_** If something wrong when you run `python manage.py makemigrations`, try deleting `0001_initial.py` and run the command again.
 
+> **_Note:_** Please use connection variables in the GitHub secrets to connect to Azure Blob container to test upload/retrieve profile images.
+
 ### 4. Run server
 
 ```
 python manage.py runserver
 ```
 
-### 5. Test
+### 5. Test (Using Talend API Tester - Chrome extension)
 
 #### User Account Management
-Test URL: http://127.0.0.1:8000/users/api_name. api_name list:
-```
-create   # password: min_length = 6
-login
-logout
-update
-delete
-change-password
-```
 
-When successfully login, two tokens will be returned with the response: refresh token and access token.
+1. User register
+   - URL: http://127.0.0.1:8000/users/create/
+   - Method: POST
+   - Request Header:
+     Content-Type: application/json
+   - Request Body:
+     ```
+     {
+       "fullname": "test",
+       "email": "test@example.com",
+       "age": 25,
+       "password": "123456"
+     }
+     ```
 
-- refresh token: test `logout`;
+2. User login
+   - URL: http://127.0.0.1:8000/users/login/
+   - Method: POST
+   - Request Header:
+     Content-Type: application/json
+   - Request Body:
+     ```
+     {
+       "email": "test@example.com",
+       "password": "123456"
+     }
+     ```
+   - Response:
+     After successfully logged in, two tokens (refresh token and access token) will be returned in the response body.
 
-  In the body of the request, add:
-    {
-      "refresh": "<the-refresh-token>"
-    }
+3. User logout
+   - URL: http://127.0.0.1:8000/users/logout/
+   - Method: POST
+   - Request Header:
+     Content-Type: application/json
+   - Request Body:
+     ```
+     {
+       "refresh": "<refresh token>"
+     }
+     ```
 
+4. User update
+   - URL: http://127.0.0.1:8000/users/update/
+   - Method: POST
+   - Request Header:
+     Content-Type: application/json
+     Authorization: Bearer <access token>
+   - Request Body:
+     ```
+     {
+       "fullname": "<new-name>",
+       "email": "<new-name>@example.com",
+       "age": <new-age>
+     }
+     ```
 
-- access token: test `update, delete, change-password`
+5. User account delete
+   - URL: http://127.0.0.1:8000/users/delete/
+   - Method: DELETE
+   - Request Header:
+     Content-Type: application/json
+     Authorization: Bearer <access token>
 
-  In the header of the request, add one more header:
-  - Authorization
-  - Bearer <the-access-token>
+6. User change password
+   - URL: http://127.0.0.1:8000/users/change-password/
+   - Method: PUT
+   - Request Header:
+     Content-Type: application/json
+     Authorization: Bearer <access token>
+   - Request Body:
+      ```
+      {
+        "old_password": "123abc",
+        "new_password": "123456",
+        "confirm_new_password": "123456"
+      }
+      ```
 
+      > **_Note:_** Don't use too simple password (at least 6 characters) when you call `change_password` API. 
 
-> **_Note:_** Don't use too simple password (at least 6 characters) when you call `change_password` API. 
-
-An example of request body:
-
-```
-{
-  "old_password": "123abc",
-  "new_password": "123456",
-  "confirm_new_password": "123456"
-}
-```
 
 #### Profile Image Management
 
-- Upload profile image
-  - http://localhost:8000/users/upload-profile-image/
-  - access token
-  - multipart/form-data
+7. Upload profile image
+   - URL: http://127.0.0.1:8000/users/upload-profile-image/
+   - Method: PUT
+   - Request Header:
+     Content-Type: multipart/form-data
+     Authorization: Bearer <access token>
+   - Request Body (Form):
+     Name: profile_image
+     Type: File
+     Choose a file: <the image to upload>
+   - Response Body: 
+     image_url returned in the response body when uploading suceeded.
+     
 
 
-- Retrieve profile image
-  - http://localhost:8000/users/retrieve-profile-image/
-  - access token
+8. Retrieve profile image
+   - URL: http://localhost:8000/users/retrieve-profile-image/
+   - Method: GET
+   - Request Header:
+     Authorization: Bearer <access token>
+   - Response Body: 
+     image_url returned in the response body when uploading suceeded.
 
 #### User interest selecting
 
-- Interest list (for frontend dropdown list)
-  - http://localhost:8000/users/interest-list/
-  - GET method
-  - no credential required
+9. Interest list (for frontend dropdown list)
+   - URL: http://localhost:8000/users/interest-list/
+   - Method: GET
+   - No headers (no credential required)
+   - Response Body: 
+     A list of key:value pairs, such as:
+     ```
+      [
+      {
+      "value": "sports",
+      "label": "Sports"
+      },
+      {
+      "value": "music",
+      "label": "Music"
+      },
+      {
+      "value": "tech",
+      "label": "Technology"
+      },
+      {
+      "value": "art",
+      "label": "Art"
+      },
+      {
+      "value": "travel",
+      "label": "Travel"
+      }
+      ]
+     ```
 
-- (Users) Interest select
-  - http://localhost:8000/users/retrieve-profile-image/
-  - access token
+10. (Users) Interest select
+   - URL: http://localhost:8000/users/interest/
+   - Method: POST
+   - Request Header:
+     Content-Type: application/json
+     Authorization: Bearer <access token>
+   - Request Body:
+     ```
+     {
+       "interest": "<user's interest>"
+     }
+     ```
