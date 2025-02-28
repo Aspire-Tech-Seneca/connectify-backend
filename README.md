@@ -116,3 +116,13 @@ An example of request body:
   - http://localhost:8000/users/retrieve-profile-image/
   - access token
 
+#### User interest selecting
+
+- Interest list (for frontend dropdown list)
+  - http://localhost:8000/users/interest-list/
+  - GET method
+  - no credential required
+
+- (Users) Interest select
+  - http://localhost:8000/users/retrieve-profile-image/
+  - access token
