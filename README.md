@@ -94,6 +94,15 @@ When successfully login, two tokens will be returned with the response: refresh 
 
 > **_Note:_** Don't use too simple password (at least 6 characters) when you call `change_password` API. 
 
+An example of request body:
+
+```
+{
+  "old_password": "123abc",
+  "new_password": "123456",
+  "confirm_new_password": "123456"
+}
+```
 
 #### Profile Image Management
 

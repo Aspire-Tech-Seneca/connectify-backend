@@ -1,18 +1,9 @@
 import os
 from azure.storage.blob import BlobServiceClient
 
-import environ
 
-# Initialize environment variables
-env = environ.Env()
-environ.Env.read_env()
-
-AZURE_CONNECTION_STRING = env('AZURE_CONNECTION_STRING')
-BLOB_CONTAINER_NAME = env('BLOB_CONTAINER_NAME')
-
-
-blob_service_client = BlobServiceClient.from_connection_string(AZURE_CONNECTION_STRING)
-container_client = blob_service_client.get_container_client(BLOB_CONTAINER_NAME)
+blob_service_client = BlobServiceClient.from_connection_string("<azure-connection-string>")
+container_client = blob_service_client.get_container_client("media")
 
 def upload_profile_image(file_data, filename):
     """

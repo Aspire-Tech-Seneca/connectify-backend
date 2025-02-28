@@ -3,8 +3,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from users.serializers import UserRegisterSerializer, UserProfileSerializer, ChangePasswordSerializer
-from users.models import ProfileImage
+from users.serializers import UserRegisterSerializer, UserProfileSerializer, ChangePasswordSerializer, UserInterestSerializer
+from users.models import ProfileImage, UserInterest
 from users.azure_utils import upload_profile_image
 from rest_framework.views import APIView
 import uuid
@@ -125,3 +125,34 @@ class ProfileImageRetrieveView(APIView):
             return Response({"error": "Profile not found"}, status=status.HTTP_404_NOT_FOUND)
         
         return Response({"image_url": profileImage.image_url}, status=status.HTTP_200_OK)
+
+
+class InterestListView(APIView):
+    def get(self, request, *args, **kwargs):
+        # Get the interest choices from the UserInterest model
+        interests = UserInterest.interest_choices
+        # Convert the list of tuples into a list of dictionaries
+        interest_list = [{'value': value, 'label': label} for value, label in interests]
+        return Response(interest_list)
+    
+
+class UserInterestView(APIView):
+    def post(self, request, *args, **kwargs):
+        # Get the user profile instance
+        user = request.user  # Assuming the user is authenticated and has a UserProfile
+        # Get the interest from the request data
+        interest = request.data.get('interest')
+        
+        # Validate the interest
+        if interest not in dict(UserInterest.interest_choices).keys():
+            return Response({'error': 'Invalid interest'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Create or update the UserInterest instance
+        user_interest, created = UserInterest.objects.get_or_create(user=user)
+        user_interest.interest = interest
+        user_interest.save()
+        
+        # Serialize the response
+        serializer = UserInterestSerializer(user_interest)
+        return Response(serializer.data, status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
+

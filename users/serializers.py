@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth import get_user_model
-# from users.models import ProfileImage
+from users.models import UserInterest
 
 
 User = get_user_model()
@@ -45,3 +45,8 @@ class ChangePasswordSerializer(serializers.Serializer):
             raise serializers.ValidationError({"confirm_new_password": "Passwords do not match."})
         return data
     
+
+class UserInterestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserInterest
+        fields = ['id', 'user', 'interest']
