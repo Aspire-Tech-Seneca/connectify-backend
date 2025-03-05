@@ -1,3 +1,12 @@
+# Docker Compose
+
+In the root directory after pulling the repo, run
+
+```
+docker-compose build
+docker-compose up
+```
+
 # Connectify Backend - Django + PostgreSQL
 
 ## Development Environment Settings
