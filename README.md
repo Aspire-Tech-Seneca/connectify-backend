@@ -1,11 +1,43 @@
 # Docker Compose
 
-In the root directory after pulling the repo, run
+0. Replace the <azure_blob_connection_string> in the `.env` file with the connection string of the Azure storage account.
+
+1. Build Django web application image
+
+In the root directory, run
+```
+ docker build -t connectify-backend-web .
+```
+
+2. Start both Django & PostgreSQL containers using Docker Compose
+
+Still in the root directory, run
 
 ```
-docker-compose build
-docker-compose up
+docker-compose up -d --build
 ```
+
+3. Check running containers
+
+```
+docker ps -a
+```
+
+4. Apply migrations (optional)
+
+```
+docker exec -it <django_app_container_id> python manage.py migrate
+```
+
+5. Stop containers
+
+Stop the containers
+
+```
+docker-compose down
+docker-compose down -v
+```
+
 
 # Connectify Backend - Django + PostgreSQL
 

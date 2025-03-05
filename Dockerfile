@@ -2,8 +2,8 @@
 FROM python:3.13-slim-bullseye 
 
 # Set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 # Install system dependencies required for psycopg2
 RUN apt-get update && apt-get install -y libpq-dev gcc && \
