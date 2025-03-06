@@ -217,10 +217,11 @@ python manage.py runserver
    - Response Body: 
      image_url returned in the response body when uploading suceeded.
 
+
 #### User interest selecting
 
 9. Interest list (for frontend dropdown list)
-   - URL: http://localhost:8000/users/interest-list/
+   - URL: http://localhost:8000/users/get-interest-list/
    - Method: GET
    - No headers (no credential required)
    - Response Body: 
@@ -251,7 +252,7 @@ python manage.py runserver
      ```
 
 10. (Users) Interest select
-   - URL: http://localhost:8000/users/interest/
+   - URL: http://localhost:8000/users/update-interest/
    - Method: POST
    - Request Header:
      Content-Type: application/json
@@ -262,3 +263,28 @@ python manage.py runserver
        "interest": "<user's interest>"
      }
      ```
+
+11. Get user's interest
+   - URL: http://localhost:8000/users/retrieve-interest/
+   - Method: GET
+   - Request Header:
+     Content-Type: application/json
+     Authorization: Bearer <access token>
+   - Response Body: 
+     (The user's) interest returned in the response body.
+
+
+12. Get a list of users with the same interest
+   - URL: http://localhost:8000/users/get-recommend-matchups/
+   - Method: POST
+   - Request Header:
+     Content-Type: application/json
+   - Request Body:
+     ```
+     {
+       "interest": "<an interest>"
+     }
+     ```
+   - Response Body: 
+     (The user's) interest returned in the response body.
+

@@ -97,8 +97,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME':     os.environ.get('DB_NAME', 'users'),        # The database name
         'USER':     os.environ.get('DB_USER', 'admin'),        # The PostgreSQL user
-        'PASSWORD': os.environ.get('DB_PASSWORD', 'passw0rd'),  # The user's password
-        'HOST':     os.environ.get('DB_HOST', 'db'),           # Using Docker to run PostgreSQL
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'passw0rd'), # The user's password
+        'HOST':     os.environ.get('DB_HOST', 'localhost'),           # Using Docker to run PostgreSQL
         'PORT':     '5432',                                    # Default PostgreSQL port
     }
 }

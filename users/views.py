@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from users.serializers import UserRegisterSerializer, UserProfileSerializer, ChangePasswordSerializer, UserInterestSerializer
-from users.models import ProfileImage, UserInterest
+from users.models import ProfileImage, UserInterest, UserProfile
 from users.azure_utils import upload_profile_image
 from rest_framework.views import APIView
 import uuid
@@ -87,6 +87,7 @@ class ChangePasswordView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# Upload Profile Image API
 class ProfileImageUploadView(APIView):
     def put(self, request, *args, **kwargs):
         # Retrieve the user’s profile
@@ -116,6 +117,7 @@ class ProfileImageUploadView(APIView):
                         status=status.HTTP_200_OK)
 
 
+# Retrieve Profile Image API
 class ProfileImageRetrieveView(APIView):
     def get(self, request, *args, **kwargs):
         user_id = request.user.id
@@ -127,6 +129,7 @@ class ProfileImageRetrieveView(APIView):
         return Response({"image_url": profileImage.image_url}, status=status.HTTP_200_OK)
 
 
+# Get Interest Choices API
 class InterestListView(APIView):
     def get(self, request, *args, **kwargs):
         # Get the interest choices from the UserInterest model
@@ -136,6 +139,7 @@ class InterestListView(APIView):
         return Response(interest_list)
     
 
+# Update User Interest API
 class UserInterestView(APIView):
     def post(self, request, *args, **kwargs):
         # Get the user profile instance
@@ -156,3 +160,35 @@ class UserInterestView(APIView):
         serializer = UserInterestSerializer(user_interest)
         return Response(serializer.data, status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
 
+
+# Retrieve User Interest API
+class UserInterestRetrieveView(APIView):
+    def get(self, request, *args, **kwargs):
+        # Get the user profile instance
+        user = request.user  # Assuming the user is authenticated and has a UserProfile
+        # Retrieve the UserInterest instance
+        try:
+            user_interest = UserInterest.objects.get(user=user)
+        except UserInterest.DoesNotExist:
+            return Response({'error': 'User interest not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Serialize the response
+        serializer = UserInterestSerializer(user_interest)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# Recommend Matchups (according to a specific interest) API
+class RecommendMatchupsView(APIView):
+    serializer_class = UserProfileSerializer
+
+    def post(self, request, *args, **kwargs):
+        interest= request.data.get('interest')
+
+        if interest:
+            interest_objects = UserInterest.objects.filter(interest=interest)
+            users = [interest_object.user for interest_object in interest_objects if interest_object.user]
+            users = list(dict.fromkeys(users))
+            serializer = self.serializer_class(users, many=True)
+            return Response(serializer.data)
+        
+        return Response([]) # Return an empty JSON list

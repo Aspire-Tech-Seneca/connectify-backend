@@ -10,6 +10,8 @@ urlpatterns = [
     path('change-password/', views.ChangePasswordView.as_view(), name='change-password'),
     path('upload-profile-image/', views.ProfileImageUploadView.as_view(), name='upload-profile-image'),
     path('retrieve-profile-image/', views.ProfileImageRetrieveView.as_view(), name='retrieve-profile-image'),
-    path('interest-list/', views.InterestListView.as_view(), name='interests-list'),
-    path('interest/', views.UserInterestView.as_view(), name='interest'),
+    path('get-interest-list/', views.InterestListView.as_view(), name='get-interests-list'),
+    path('update-interest/', views.UserInterestView.as_view(), name='update-interest'),
+    path('retrieve-interest/', views.UserInterestRetrieveView.as_view(), name='retrieve-interest'),
+    path('get-recommend-matchups/', views.RecommendMatchupsView.as_view(), name='get-recommend-matchups'),
 ]
