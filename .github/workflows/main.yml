@@ -1,0 +1,43 @@
+name: Connectify - Front
+
+on:
+  push:
+    branches: [ "dev" ]
+
+  workflow_dispatch:
+
+permissions:
+  id-token: write # Require write permission to Fetch an OIDC token.
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: GIT | Checkout
+        uses: actions/checkout@v2
+
+      - name: GIT | Get current branch
+        run: echo "CURRENT_BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+
+      - name: DOCKER | Login
+        uses: azure/docker-login@v2
+        with:
+          login-server: atcdevacr.azurecr.io
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: DOCKER | Build and Push Docker Image
+        env:
+          ACR: atcdevacr.azurecr.io
+          IMG_NAME: connectify-backend
+        run: |
+
+          IMG=$ACR/$IMG_NAME-$CURRENT_BRANCH
+
+          echo "DOCKER | Build Image"
+          docker build -t $IMG .
+
+          echo "DOCKER | Push Image"
+          docker push $IMG
