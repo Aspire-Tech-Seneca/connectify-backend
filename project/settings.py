@@ -34,7 +34,7 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -98,7 +98,7 @@ DATABASES = {
         'NAME':     os.environ.get('DB_NAME', 'users'),        # The database name
         'USER':     os.environ.get('DB_USER', 'admin'),        # The PostgreSQL user
         'PASSWORD': os.environ.get('DB_PASSWORD', 'passw0rd'), # The user's password
-        'HOST':     os.environ.get('DB_HOST', 'localhost'),           # Using Docker to run PostgreSQL
+        'HOST':     os.environ.get('DB_HOST', env('HOST')),           # Using Docker to run PostgreSQL
         'PORT':     '5432',                                    # Default PostgreSQL port
     }
 }

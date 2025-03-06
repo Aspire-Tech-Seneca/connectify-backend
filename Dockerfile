@@ -19,13 +19,13 @@ COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of your project code
-COPY . /app/
+COPY . /app
 
 # Expose the port your Django app runs on (default is 8000)
 EXPOSE 8000
 
 # Start your Django development server (for development)
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
 
 # For production, use a WSGI server like Gunicorn
 # CMD ["gunicorn", "--bind=0.0.0.0:8000", "your_project.wsgi"]
