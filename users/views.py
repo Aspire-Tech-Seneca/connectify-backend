@@ -49,6 +49,14 @@ class LogoutView(APIView):
             return Response({"error": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
 
 
+# Retrieve User Info API
+class RetrieveUserInfoView(APIView):
+    def get(self, request):
+        user = request.user
+        serializer = UserProfileSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 # User Profile Update API
 class UpdateUserProfileView(APIView):
     def post(self, request):

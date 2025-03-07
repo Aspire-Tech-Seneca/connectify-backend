@@ -151,7 +151,20 @@ python manage.py runserver
      }
      ```
 
-4. User update
+4. Retrieve user's info
+   - URL: http://127.0.0.1:8000/users/get-user-info/
+   - Method: GET
+   - Request Header:
+     Authorization: Bearer <access token>
+   - Response Body: (json file)
+     For example:
+     ```
+     {
+       "refresh": "<refresh token>"
+     }
+     ```
+
+5. User update
    - URL: http://127.0.0.1:8000/users/update/
    - Method: POST
    - Request Header:
@@ -167,14 +180,14 @@ python manage.py runserver
      }
      ```
 
-5. User account delete
+6. User account delete
    - URL: http://127.0.0.1:8000/users/delete/
    - Method: DELETE
    - Request Header:
      Content-Type: application/json
      Authorization: Bearer <access token>
 
-6. User change password
+7. User change password
    - URL: http://127.0.0.1:8000/users/change-password/
    - Method: PUT
    - Request Header:
@@ -194,7 +207,7 @@ python manage.py runserver
 
 #### Profile Image Management
 
-7. Upload profile image
+8. Upload profile image
    - URL: http://127.0.0.1:8000/users/upload-profile-image/
    - Method: PUT
    - Request Header:
@@ -209,7 +222,7 @@ python manage.py runserver
      
 
 
-8. Retrieve profile image
+9. Retrieve profile image
    - URL: http://localhost:8000/users/retrieve-profile-image/
    - Method: GET
    - Request Header:
@@ -220,7 +233,7 @@ python manage.py runserver
 
 #### User interest selecting
 
-9. Interest list (for frontend dropdown list)
+10. Interest list (for frontend dropdown list)
    - URL: http://localhost:8000/users/get-interest-list/
    - Method: GET
    - No headers (no credential required)
@@ -251,7 +264,7 @@ python manage.py runserver
       ]
      ```
 
-10. (Users) Interest select
+11. (Users) Interest select
    - URL: http://localhost:8000/users/update-interest/
    - Method: POST
    - Request Header:
@@ -264,7 +277,7 @@ python manage.py runserver
      }
      ```
 
-11. Get user's interest
+12. Get user's interest
    - URL: http://localhost:8000/users/retrieve-interest/
    - Method: GET
    - Request Header:
@@ -274,7 +287,7 @@ python manage.py runserver
      (The user's) interest returned in the response body.
 
 
-12. Get a list of users with the same interest
+13. Get a list of users with the same interest
    - URL: http://localhost:8000/users/get-recommend-matchups/
    - Method: POST
    - Request Header:
