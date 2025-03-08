@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth import get_user_model
-from users.models import UserInterest
+from users.models import Interest, ProfileImage
 
 
 User = get_user_model()
@@ -26,13 +26,30 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             age = validated_data.get('age'),
             fullname = validated_data.get('fullname'),
         )
+        user.set_password(validated_data['password'])  # Hash password
+        user.save()
         return user
 
 
+class ProfileImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProfileImage
+        fields = ['image_url']
+
+
+class InterestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Interest
+        fields = ['id', 'name']
+
+
 class UserProfileSerializer(serializers.ModelSerializer):
+    profile_image = ProfileImageSerializer(read_only=True)
+    interest = InterestSerializer(read_only=True)
+
     class Meta:
         model = User
-        fields = ['id', 'email', 'fullname', 'age', 'bio']
+        fields = ['id', 'email', 'fullname', 'age', 'bio', 'location', 'profile_image', 'interest']
 
 
 class ChangePasswordSerializer(serializers.Serializer):
@@ -46,7 +63,3 @@ class ChangePasswordSerializer(serializers.Serializer):
         return data
     
 
-class UserInterestSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserInterest
-        fields = ['id', 'user', 'interest']

@@ -120,9 +120,12 @@ python manage.py runserver
        "fullname": "test",
        "email": "test@example.com",
        "age": 25,
-       "password": "123456"
+       "location": "toronto",
+       "password": "123456", 
+       "confirm_password":, "123456"
      }
      ```
+    ![Signup](images/01-create.png)
 
 2. User login
    - URL: http://127.0.0.1:8000/users/login/
@@ -138,6 +141,7 @@ python manage.py runserver
      ```
    - Response:
      After successfully logged in, two tokens (refresh token and access token) will be returned in the response body.
+    ![Login](images/02-login.png)
 
 3. User logout
    - URL: http://127.0.0.1:8000/users/logout/
@@ -150,8 +154,11 @@ python manage.py runserver
        "refresh": "<refresh token>"
      }
      ```
+   - Reponse:
+     The tokens become invalid.
+    ![Logout](images/03-logout.png)
 
-4. Retrieve user's info
+4. Get user's detailed info
    - URL: http://127.0.0.1:8000/users/get-user-info/
    - Method: GET
    - Request Header:
@@ -159,26 +166,40 @@ python manage.py runserver
    - Response Body: (json file)
      For example:
      ```
-     {
-       "refresh": "<refresh token>"
-     }
+      {
+        "id": 1,
+        "email": "test@example.com",
+        "fullname": "test",
+        "age": 25,
+        "bio": null,
+        "location": null,
+        "profile_image":{
+          "image_url": "https://caa900connectifystorage.blob.core.windows.net/media/profile_images/6dd843ad-742b-4076-9a84-dd28ad14aa81.png"
+        },
+        "interest":{
+          "id": 1,
+          "name": "sports"
+        }
+      }
+
      ```
+    ![User's details](images/04-get-user-info.png)
 
 5. User update
    - URL: http://127.0.0.1:8000/users/update/
-   - Method: POST
+   - Method: PATCH
    - Request Header:
      Content-Type: application/json
      Authorization: Bearer <access token>
    - Request Body:
+     And fields except for password, for example
      ```
      {
-       "fullname": "<new-name>",
-       "email": "<new-name>@example.com",
-       "age": <new-age>,
-       "bio": "This is my bio."
+       "bio": "Hello, this is JIYUN",
+       "location": "Beijing"
      }
      ```
+    ![Update user info](images/05-update.png)
 
 6. User account delete
    - URL: http://127.0.0.1:8000/users/delete/
@@ -186,6 +207,7 @@ python manage.py runserver
    - Request Header:
      Content-Type: application/json
      Authorization: Bearer <access token>
+    ![Delete user account](images/06-delete.png)
 
 7. User change password
    - URL: http://127.0.0.1:8000/users/change-password/
@@ -204,6 +226,8 @@ python manage.py runserver
 
       > **_Note:_** Don't use too simple password (at least 6 characters) when you call `change_password` API. 
 
+    ![Change password](images/07-change-password.png)
+
 
 #### Profile Image Management
 
@@ -219,17 +243,16 @@ python manage.py runserver
      Choose a file: <the image to upload>
    - Response Body: 
      image_url returned in the response body when uploading suceeded.
-     
+    ![Upload profile image](images/08-upload-profile-image.png)   
 
-
-9. Retrieve profile image
+9. Retrieve profile image (URL)
    - URL: http://localhost:8000/users/retrieve-profile-image/
    - Method: GET
    - Request Header:
      Authorization: Bearer <access token>
    - Response Body: 
      image_url returned in the response body when uploading suceeded.
-
+    ![Retrieve URL of profile image](images/09-retrieve-profile-image.png)
 
 #### User interest selecting
 
@@ -263,6 +286,7 @@ python manage.py runserver
       }
       ]
      ```
+    ![Get the list of interest choice](images/10-get-interest-list.png)
 
 11. (Users) Interest select
    - URL: http://localhost:8000/users/update-interest/
@@ -276,6 +300,15 @@ python manage.py runserver
        "interest": "<user's interest>"
      }
      ```
+   - Response Body:
+     Interest ID and name, for example:
+     ```
+     {
+        id": 1,
+        "name": "sports"     
+     }
+     ```
+    ![User interest update](images/11-update-interest.png)
 
 12. Get user's interest
    - URL: http://localhost:8000/users/retrieve-interest/
@@ -284,12 +317,18 @@ python manage.py runserver
      Content-Type: application/json
      Authorization: Bearer <access token>
    - Response Body: 
-     (The user's) interest returned in the response body.
+     Interest ID and name, for example:
+     ```
+     {
+        id": 2,
+        "name": "travel"     
+     }
+     ```
+    ![Retrieve user's interest](images/12-retrieve-interest.png)
 
-
-13. Get a list of users with the same interest
+13. Get a list of users (suggested matchups) having the same interest with the specific user
    - URL: http://localhost:8000/users/get-recommend-matchups/
-   - Method: POST
+   - Method: GET
    - Request Header:
      Content-Type: application/json
    - Request Body:
@@ -299,5 +338,40 @@ python manage.py runserver
      }
      ```
    - Response Body: 
-     (The user's) interest returned in the response body.
+     The list of users with the same interest. For example:
+     ```
+      [
+        {
+          "id": 4,
+          "email": "eni@example.com",
+          "fullname": "eni",
+          "age": 25,
+          "bio": null,
+          "location": null,
+          "profile_image":{
+            "image_url": null
+          },
+          "interest":{
+            "id": 2,
+            "name": "travel"
+          }
+        },
+        {
+          "id": 5,
+          "email": "zara@example.com",
+          "fullname": "zara",
+          "age": 25,
+          "bio": null,
+          "location": null,
+          "profile_image":{
+            "image_url": null
+          },
+          "interest":{
+            "id": 2,
+            "name": "travel"
+          }
+        }
+      ]
+     ```
+    ![Get suggested matchups for user](images/13-get-recommand-matchups.png)
 

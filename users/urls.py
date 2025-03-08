@@ -12,7 +12,7 @@ urlpatterns = [
     path('upload-profile-image/', views.ProfileImageUploadView.as_view(), name='upload-profile-image'),
     path('retrieve-profile-image/', views.ProfileImageRetrieveView.as_view(), name='retrieve-profile-image'),
     path('get-interest-list/', views.InterestListView.as_view(), name='get-interests-list'),
-    path('update-interest/', views.UserInterestView.as_view(), name='update-interest'),
+    path('update-interest/', views.UserInterestSetView.as_view(), name='update-interest'),
     path('retrieve-interest/', views.UserInterestRetrieveView.as_view(), name='retrieve-interest'),
     path('get-recommend-matchups/', views.RecommendMatchupsView.as_view(), name='get-recommend-matchups'),
 ]
