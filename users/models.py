@@ -43,3 +43,24 @@ class Interest(models.Model):
 
     def __str__(self):
         return self.name if self.name else "No Interest"
+
+
+class Matchup(models.Model):
+    status_choices = [
+        ('0', 'No status / not-started'),
+        ('1', 'Matchup request sent'),
+        ('2', 'Matchup request received'),
+        ('3', 'Matchup request accepted. The two users are friends'),
+        ('4', 'Request denied'),
+        ('5', 'Request blocked, and the status of both sides are blocked, and they cannot send requests to each other'),
+    ]
+
+    requester = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='matchup_requests')
+    receiver = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='matchup_received')
+    status = models.CharField(max_length=10, choices=status_choices, default='0')
+
+    class Meta:
+        unique_together = ('requester', 'receiver')  # Prevent duplicate status pairs
+
+    def __str__(self):
+        return f"{self.requester} -> {self.receiver}: {self.status}"

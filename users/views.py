@@ -1,12 +1,15 @@
 from django.contrib.auth import authenticate, get_user_model
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, permissions
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from users.serializers import UserRegisterSerializer, UserProfileSerializer, ChangePasswordSerializer, InterestSerializer
-from users.models import ProfileImage, Interest
+from users.serializers import UserRegisterSerializer, UserProfileSerializer, \
+                              ChangePasswordSerializer, InterestSerializer, \
+                              MatchupSerializer, MatchupCreateSerializer, MatchupUpdateSerializer
+from users.models import ProfileImage, Interest, Matchup
 from users.azure_utils import upload_profile_image
 from rest_framework.views import APIView
+from django.db.models import Q
 import uuid
 
 
@@ -212,3 +215,191 @@ class RecommendMatchupsView(APIView):
         # Serialize user data
         serializer = UserProfileSerializer(users, many=True)  # `many=True` because it's a list
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+class RequestMatchupAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        receiver_id = request.data.get('receiver-user-id')
+        if not receiver_id:
+            return Response({"detail": "receiver-user-id is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            receiver = User.objects.get(id=receiver_id)
+        except User.DoesNotExist:
+            return Response({"detail": "Receiver user not found."}, status=status.HTTP_400_BAD_REQUEST)
+
+        requester = request.user
+
+        # Check if a matchup already exists for both users
+        matchup_exists = Matchup.objects.filter(
+            Q(requester=requester, receiver=receiver) | 
+            Q(requester=receiver, receiver=requester)
+        ).exists()
+
+        if matchup_exists:
+            # Retrieve both matchup records
+            matchups = Matchup.objects.filter(
+                Q(requester=requester, receiver=receiver) | 
+                Q(requester=receiver, receiver=requester)
+            )
+
+            matchup_requester = matchups.get(requester=requester, receiver=receiver)
+            matchup_receiver = matchups.get(requester=receiver, receiver=requester)
+
+            if matchup_requester.status == Matchup.status_choices[5][0]:  # 'blocked'
+                return Response({"message": "Request blocked. You cannot send requests to this user."}, status=status.HTTP_403_FORBIDDEN)
+
+            elif matchup_receiver.status == Matchup.status_choices[5][0]:  # 'blocked'
+                return Response({"message": "Request blocked. You cannot send requests to this user."}, status=status.HTTP_403_FORBIDDEN)
+
+            elif matchup_requester.status == Matchup.status_choices[1][0]:  # 'sent'
+                return Response({"message": "The matchup request has already been sent, please wait for confirmation."}, status=status.HTTP_200_OK)
+
+            elif matchup_requester.status == Matchup.status_choices[2][0]:  # 'received'
+                return Response({"message": "The user sent you a matchup request, please confirm it."}, status=status.HTTP_400_BAD_REQUEST)
+
+            elif matchup_requester.status == Matchup.status_choices[3][0]:  # 'confirmed'
+                return Response({"message": "You are already friends."}, status=status.HTTP_400_BAD_REQUEST)
+
+            elif matchup_requester.status == Matchup.status_choices[4][0]:  # 'denied'
+                matchup_requester.status = Matchup.status_choices[1][0]  # 'sent'
+                matchup_receiver.status = Matchup.status_choices[2][0]  # 'received'
+                matchup_requester.save()
+                matchup_receiver.save()
+                return Response({"message": "The matchup request has been sent successfully."}, status=status.HTTP_200_OK)
+
+            else:
+                return Response({"detail": "Matchup status is invalid"}, status=status.HTTP_400_BAD_REQUEST)
+
+        else:
+            # Create mirrored matchup records
+            Matchup.objects.bulk_create([
+                Matchup(requester=requester, receiver=receiver, status=Matchup.status_choices[1][0]),  # 'sent'
+                Matchup(requester=receiver, receiver=requester, status=Matchup.status_choices[2][0])   # 'received'
+            ])
+            return Response({"message": "The matchup request has been sent successfully."}, status=status.HTTP_201_CREATED)
+
+
+class GetMatchupStatusAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        # Using receiver as the logged-in user to check the status of the received requests
+        # and to get the list of users (user_ids) who sent the requests
+        receiver = request.user.id
+        matchups = Matchup.objects.filter(requester=receiver, status=Matchup.status_choices[2][0])
+        requesters = [matchup.receiver for matchup in matchups]
+        serializer = UserProfileSerializer(requesters, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ConfirmMatchupRequestAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def put(self, request):
+        requester_id = request.data.get('requester-user-id')
+        if not requester_id:
+            return Response({"detail": "requester-user-id is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            requester = User.objects.get(id=requester_id)
+        except User.DoesNotExist:
+            return Response({"detail": "Requester user not found."}, status=status.HTTP_400_BAD_REQUEST)
+
+        receiver_id = request.user.id
+
+        # Check if both matchup records exist in the "received" and "sent" state
+        try:
+            matchup_requester = Matchup.objects.get(requester=requester_id, receiver=receiver_id, status=Matchup.status_choices[1][0])  # 'received'
+            matchup_receiver = Matchup.objects.get(requester=receiver_id, receiver=requester_id, status=Matchup.status_choices[2][0])  # 'sent'
+        except Matchup.DoesNotExist:
+            return Response({"detail": "Matchup request not found or invalid status."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Update both records to 'confirmed'
+        matchup_requester.status = Matchup.status_choices[3][0]  # 'confirmed'
+        matchup_receiver.status = Matchup.status_choices[3][0]  # 'confirmed'
+        matchup_requester.save()
+        matchup_receiver.save()
+
+        return Response({"message": "The matchup request has been confirmed successfully."}, status=status.HTTP_200_OK)
+
+
+class GetMyMatchupListAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        matchups_requester = Matchup.objects.filter(requester=user, status=Matchup.status_choices[3][0])
+        matchups_receiver = Matchup.objects.filter(receiver=user, status=Matchup.status_choices[3][0])
+
+        matchup_users_requester = [m.receiver for m in matchups_requester]
+        matchup_users_receiver = [m.requester for m in matchups_receiver]
+
+        matchup_users = list(set(matchup_users_requester + matchup_users_receiver))
+
+        serializer = UserProfileSerializer(matchup_users, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+class DenyMatchupRequestAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def put(self, request):
+        requester_id = request.data.get('requester-user-id')
+        if not requester_id:
+            return Response({"detail": "requester-user-id is required."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            requester = User.objects.get(id=requester_id)
+        except User.DoesNotExist:
+            return Response({"detail": "Requester user not found."}, status=status.HTTP_400_BAD_REQUEST)
+
+        receiver = request.user
+
+        # Check if a matchup exists between the users
+        try:
+            matchup_requester = Matchup.objects.get(requester=requester, receiver=receiver)
+            matchup_receiver = Matchup.objects.get(requester=receiver, receiver=requester)
+        except Matchup.DoesNotExist:
+            return Response({"detail": "Matchup request not found."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Update both records to "blocked"
+        matchup_requester.status = Matchup.status_choices[4][0]  # 'denied'
+        matchup_receiver.status = Matchup.status_choices[4][0]  # 'denied'
+        matchup_requester.save()
+        matchup_receiver.save()
+
+        return Response({"message": "User has been denied successfully."}, status=status.HTTP_200_OK)
+    
+
+class BlockMatchupRequestAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def put(self, request):
+        requester_id = request.data.get('requester-user-id')
+        if not requester_id:
+            return Response({"detail": "requester-user-id is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            requester = User.objects.get(id=requester_id)
+        except User.DoesNotExist:
+            return Response({"detail": "Requester user not found."}, status=status.HTTP_400_BAD_REQUEST)
+
+        receiver = request.user
+
+        # Check if a matchup exists between the users
+        try:
+            matchup_requester = Matchup.objects.get(requester=requester, receiver=receiver)
+            matchup_receiver = Matchup.objects.get(requester=receiver, receiver=requester)
+        except Matchup.DoesNotExist:
+            return Response({"detail": "Matchup request not found."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Update both records to "blocked"
+        matchup_requester.status = Matchup.status_choices[5][0]  # 'blocked'
+        matchup_receiver.status = Matchup.status_choices[5][0]  # 'blocked'
+        matchup_requester.save()
+        matchup_receiver.save()
+
+        return Response({"message": "User has been blocked successfully."}, status=status.HTTP_200_OK)

@@ -15,4 +15,10 @@ urlpatterns = [
     path('update-interest/', views.UserInterestSetView.as_view(), name='update-interest'),
     path('retrieve-interest/', views.UserInterestRetrieveView.as_view(), name='retrieve-interest'),
     path('get-recommend-matchups/', views.RecommendMatchupsView.as_view(), name='get-recommend-matchups'),
+    path('request-matchup/', views.RequestMatchupAPIView.as_view(), name='request-matchup'),
+    path('get-matchup-status/', views.GetMatchupStatusAPIView.as_view(), name='get-matchup-status'),
+    path('confirm-matchup-request/', views.ConfirmMatchupRequestAPIView.as_view(), name='confirm-matchup-request'),
+    path('get-mymatchup-list/', views.GetMyMatchupListAPIView.as_view(), name='get-mymatchup-list'),
+    path('deny-matchup-request/', views.DenyMatchupRequestAPIView.as_view(), name='deny-matchup-request'),
+    path('block-matchup-request/', views.BlockMatchupRequestAPIView.as_view(), name='block-matchuprequest'),
 ]
