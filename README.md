@@ -543,5 +543,200 @@ python manage.py runserver
         }
       ]
      ```
+
     ![Get suggested matchups for user](images/13-get-recommand-matchups.png)
+
+
+#### For matchup request and confirmation
+
+> **_Note:_** There are five different matching-up statuses:
+
+  ```
+  0 - not-started (No matchup requests started from any side)
+  1 - requested (The requester has sent matchup request and is waiting for confirmation from the receiver)
+  2 - pending (The receiver received the matchup request but has not confirmed it yet)
+  3 - confirmed (The receiver confirmed the matchup request)
+  4 - denied (The receiver denied the matchup request)
+  5 - blocked (The receiver blocked the matchup request)
+  ```
+
+14. Request matchup API 
+
+    Use case: Used for a user (requester) sending matchup request to another user (receiver, with their user_id). 
+    
+    For example: Ji and Eni have same interest, and Ji wants to make friend with Eni. Ji will log into her account, and find Eni from the suggested matchups. Then she will click the "Make friend" button (or other button names) and send the request to Eni.
+
+   - URL: http://localhost:8000/users/request-matchup/
+   - Method: POST
+   - Request Header:
+     Content-Type: application/json
+     Authorization: Bearer <access token>
+   - Request Body: 
+     ```
+      {
+        "receiver-user-id": "<user-id>",
+      }
+     ```
+   - Response Body: 
+     - "message: the matchup request has already been sent successfully." with HTTP_200_OK if the matchup status is not-started (0)
+     - "message: the matchup request has already been sent and please wait for confirmation from the receiver." with HTTP_400_BAD_REQUEST if the matchup status is requested (1)
+     - "message: the user sent you a matchup request, please confirm it." with HTTP_400_BAD_REQUEST if the matchup status is pending (2)
+     - "message: you are already friends." with HTTP_400_BAD_REQUEST if the matchup status is confirmed (3)
+     - "message: Sorry, the receiver doen't want to be your friend." with HTTP_400_BAD_REQUEST if the matchup status is confirmed (4)
+
+    ![Send matchup request](images/14-request-matchup.png)
+
+
+15. Get matchup status API 
+
+    Use case: Used for the users to get who have sent matchup requests to them. 
+    
+    For example: Ji already sent a request to Eni and Eni logged into her account, call this API to get the list of users (including Ji) who sent matchup requests to Eni.
+
+   - URL: http://localhost:8000/users/get-matchup-status/
+   - Method: GET
+   - Request Header:
+     Authorization: Bearer <access token>
+   - Request Body: empty
+   - Response Body: 
+     A list of users with the request status "pending", example
+     ```
+      [
+        {
+          "id": 4,
+          "email": "eni@example.com",
+          "fullname": "eni",
+          "age": 25,
+          "bio": null,
+          "location": null,
+          "profile_image":{
+            "image_url": null
+          },
+          "interest":{
+            "id": 2,
+            "name": "travel"
+          }
+        },
+        {
+          "id": 5,
+          "email": "zara@example.com",
+          "fullname": "zara",
+          "age": 25,
+          "bio": null,
+          "location": null,
+          "profile_image":{
+            "image_url": null
+          },
+          "interest":{
+            "id": 2,
+            "name": "travel"
+          }
+        }
+      ]
+     ```
+
+    ![Get a list of users who sent matchup requests](images/15-get-matchup-status.png)
+
+
+16. Confirm matchup request API 
+    Use case: Used for the receivers to confirm matchup requests sent to them and make friends with the requesters.
+
+    For example: Eni found Ji want to be her friend and she also wants to be Ji's friend. In the status that Eni has logged into her account, she clicks the "Confirmation" button under Ji's profile info. Both of Eni and Ji become friends to each other.
+
+   - URL: http://localhost:8000/users/confirm-matchup-request/
+   - Method: PUT
+   - Request Header:
+     Content-Type: application/json
+     Authorization: Bearer <access token>
+   - Request Body: 
+     ```
+      {
+        "requester-user-id": "<user-id>",
+      }
+     ```
+   - Response Body: 
+     - "message: the matchup request has been confirmed successfully." with HTTP_200_OK.
+     - HTTP_400_BAD_REQUEST
+
+    ![Confirm matchup request](images/16-confirm-matchup-request.png)
+
+
+17. Get the list of my matchups API (used for all users)
+    User case: to show who have already became friends of the user.
+
+    For example: Ji logged into her account, and wants to know
+
+   - URL: http://localhost:8000/users/get-mymatchup-list/
+   - Method: GET
+   - Request Header:
+     Authorization: Bearer <access token>
+   - Request Header: empty
+   - Response Body: 
+     A list of users who are my matchups, example:
+     ```
+      [
+        {
+          "id": 4,
+          "email": "eni@example.com",
+          "fullname": "eni",
+          "age": 25,
+          "bio": null,
+          "location": null,
+          "profile_image":{
+            "image_url": null
+          },
+          "interest":{
+            "id": 2,
+            "name": "travel"
+          }
+        },
+        {
+          "id": 5,
+          "email": "zara@example.com",
+          "fullname": "zara",
+          "age": 25,
+          "bio": null,
+          "location": null,
+          "profile_image":{
+            "image_url": null
+          },
+          "interest":{
+            "id": 2,
+            "name": "travel"
+          }
+        }
+      ]
+     ```
+
+18. Deny matchup request API (used for the receiver)
+   - URL: http://localhost:8000/users/deny-matchup-request/
+   - Method: PUT
+   - Request Header:
+     Content-Type: application/json
+     Authorization: Bearer <access token>
+   - Request Body: 
+     ```
+      {
+        "requester-user-id": "<user-id>",
+      }
+     ```
+   - Response Body: 
+     - "message: the matchup request has been denied successfully." with HTTP_200_OK.
+     - HTTP_400_BAD_REQUEST
+
+19. Block matchup request API (used for the receiver)
+   - URL: http://localhost:8000/users/block-matchup-request/
+   - Method: PUT
+   - Request Header:
+     Content-Type: application/json
+     Authorization: Bearer <access token>
+   - Request Body: 
+     ```
+      {
+        "requester-user-id": "<user-id>",
+      }
+     ```
+   - Response Body: 
+     - "message: the matchup request has been blocked successfully." with HTTP_200_OK.
+     - HTTP_400_BAD_REQUEST
 

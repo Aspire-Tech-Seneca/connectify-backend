@@ -10,6 +10,7 @@ from users.models import ProfileImage, Interest, Matchup
 from users.azure_utils import upload_profile_image
 from rest_framework.views import APIView
 from django.db.models import Q
+import uuid
 
 
 User = get_user_model()
@@ -123,7 +124,9 @@ class ProfileImageUploadView(APIView):
             return Response({"error": "No file uploaded"}, status=status.HTTP_400_BAD_REQUEST)
         
         # Optionally generate a unique filename
-        unique_filename = f"profile_images/{uploaded_file.name}"
+        extension = uploaded_file.name.split('.')[-1]
+        unique_filename = f"profile_images/{uuid.uuid4()}.{extension}"
+        
         # Upload the file to Azure Blob Storage
         blob_url = upload_profile_image(uploaded_file, unique_filename)
         
@@ -144,9 +147,8 @@ class ProfileImageRetrieveView(APIView):
         except ProfileImage.DoesNotExist:
             return Response({"error": "Profile not found"}, status=status.HTTP_404_NOT_FOUND)
         
-        image_url = profileImage.image_url
-        image_name = image_url.split('/')[-1]
-        return Response({"image_name": image_name}, status=status.HTTP_200_OK)
+        image_name = profileImage.image_url.split('/')[-1]
+        return Response({"profile_image_name": image_name}, status=status.HTTP_200_OK)
 
 
 # Get Interest Choices API
@@ -265,8 +267,8 @@ class RequestMatchupAPIView(APIView):
             elif matchup_requester.status == Matchup.status_choices[4][0]:  # 'denied'
                 matchup_requester.status = Matchup.status_choices[1][0]  # 'sent'
                 matchup_receiver.status = Matchup.status_choices[2][0]  # 'received'
-                matchup_requester.save()
                 matchup_receiver.save()
+                matchup_requester.save()
                 return Response({"message": "The matchup request has been sent successfully."}, status=status.HTTP_200_OK)
 
             else:
