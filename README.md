@@ -420,7 +420,7 @@ python manage.py runserver
    - Request Header:
      Authorization: Bearer <access token>
    - Response Body: 
-     image_url returned in the response body when uploading suceeded.
+     image_name returned in the response body when uploading suceeded.
     ![Retrieve URL of profile image](images/09-retrieve-profile-image.png)
 
 #### User interest selecting
