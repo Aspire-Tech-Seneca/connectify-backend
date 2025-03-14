@@ -638,33 +638,10 @@ python manage.py runserver
     ![Get a list of users who sent matchup requests](images/15-get-matchup-status.png)
 
 
-16. Confirm matchup request API 
-    Use case: Used for the receivers to confirm matchup requests sent to them and make friends with the requesters.
+16. Get the list of my matchups API
+    User case: for all users to show who have already became friends of the user.
 
-    For example: Eni found Ji want to be her friend and she also wants to be Ji's friend. In the status that Eni has logged into her account, she clicks the "Confirmation" button under Ji's profile info. Both of Eni and Ji become friends to each other.
-
-   - URL: http://localhost:8000/users/confirm-matchup-request/
-   - Method: PUT
-   - Request Header:
-     Content-Type: application/json
-     Authorization: Bearer <access token>
-   - Request Body: 
-     ```
-      {
-        "requester-user-id": "<user-id>",
-      }
-     ```
-   - Response Body: 
-     - "message: the matchup request has been confirmed successfully." with HTTP_200_OK.
-     - HTTP_400_BAD_REQUEST
-
-    ![Confirm matchup request](images/16-confirm-matchup-request.png)
-
-
-17. Get the list of my matchups API (used for all users)
-    User case: to show who have already became friends of the user.
-
-    For example: Ji logged into her account, and wants to know
+    For example: Ji logged into her account, and wants to get the list of all her friends
 
    - URL: http://localhost:8000/users/get-mymatchup-list/
    - Method: GET
@@ -708,7 +685,37 @@ python manage.py runserver
       ]
      ```
 
-18. Deny matchup request API (used for the receiver)
+    ![Get the list of friends](images/16-get-mymatchup-list.png)
+
+
+17. Confirm matchup request API 
+    Use case: Used for the receivers to confirm matchup requests sent to them and make friends with the requesters.
+
+    For example: Eni found Ji want to be her friend and she also wants to be Ji's friend. In the status that Eni has logged into her account, she clicks the "Confirmation" button under Ji's profile info. Both of Eni and Ji become friends to each other.
+
+   - URL: http://localhost:8000/users/confirm-matchup-request/
+   - Method: PUT
+   - Request Header:
+     Content-Type: application/json
+     Authorization: Bearer <access token>
+   - Request Body: 
+     ```
+      {
+        "requester-user-id": "<user-id>",
+      }
+     ```
+   - Response Body: 
+     - "message: the matchup request has been confirmed successfully." with HTTP_200_OK.
+     - HTTP_400_BAD_REQUEST
+
+    ![Confirm matchup request](images/17-confirm-matchup-request.png)
+
+
+18. Deny matchup request API 
+    Use case: used for the receiver to deny a requester's matchup request (invalid once, users may send matchup requests in the future)
+
+    For example: Ji sent a matchup request to Eni and Eni doesn't want to be friend with Ji. Eni may deny this request, but later she can send matchup to Ji or vice versa.
+
    - URL: http://localhost:8000/users/deny-matchup-request/
    - Method: PUT
    - Request Header:
@@ -724,7 +731,12 @@ python manage.py runserver
      - "message: the matchup request has been denied successfully." with HTTP_200_OK.
      - HTTP_400_BAD_REQUEST
 
-19. Block matchup request API (used for the receiver)
+    ![Confirm matchup request](images/18-deny-matchup-request.png)
+
+
+19. Block matchup request API 
+    Use case: Not accepts any matchup request this time and block any matchup requests in the future, and end friendships for friends.
+
    - URL: http://localhost:8000/users/block-matchup-request/
    - Method: PUT
    - Request Header:
@@ -740,3 +752,4 @@ python manage.py runserver
      - "message: the matchup request has been blocked successfully." with HTTP_200_OK.
      - HTTP_400_BAD_REQUEST
 
+    ![Block any matchup request current and in the future](images/19-block-matchup-request.png)

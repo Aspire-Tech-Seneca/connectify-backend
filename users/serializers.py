@@ -105,6 +105,7 @@ class MatchupUpdateSerializer(serializers.ModelSerializer):
             Matchup.status_choices[4][0]: [Matchup.status_choices[1][0]], # 4: allow 1 (allows a user who had a request denied to resend the request)
             Matchup.status_choices[1][0]: [Matchup.status_choices[5][0]], # 1: allow 5
             Matchup.status_choices[2][0]: [Matchup.status_choices[5][0]], # 2: allow 5
+            Matchup.status_choices[3][0]: [Matchup.status_choices[5][0]], # 3: allow 5
         }
 
         if current_status not in allowed_transitions:
