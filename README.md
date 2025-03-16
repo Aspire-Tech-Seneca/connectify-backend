@@ -432,7 +432,7 @@ python manage.py runserver
 
 #### For matchup request and confirmation
 
-> **_Note:_** There are five different matching-up statuses:
+> **_Note:_** There are six different matching-up statuses:
 
   ```
   0 - not-started (No matchup requests started from any side)

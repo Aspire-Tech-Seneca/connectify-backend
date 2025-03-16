@@ -284,8 +284,17 @@ class RecommendMatchupsView(APIView):
         if not interest:  # if the user hasn't selected an interest
             return Response({"message": "You have not selected an interest"}, status=status.HTTP_200_OK)
 
-        # Fetch users who have this interest
-        users = User.objects.filter(interest=interest).exclude(id=user.id).select_related('profile_image', 'interest')   
+        # Fetch users who have an existing matchup with this user in restricted statuses
+        excluded_users = Matchup.objects.filter(
+            Q(requester=user, status__in=[1, 2, 3, 5]) | 
+            Q(receiver=user, status__in=[1, 2, 3, 5])
+        ).values_list('requester', 'receiver', flat=False)
+
+        # Flatten the tuple results and remove the current user's ID
+        excluded_user_ids = {uid for pair in excluded_users for uid in pair if uid != user.id}
+        
+        # Fetch users who have this interest excluding those in an active/blocked matchup
+        users = User.objects.filter(interest=interest).exclude(id__in=excluded_user_ids).exclude(id=user.id).select_related('profile_image', 'interest')   
 
         if not users.exists():
             return Response({"message": "No other users share your interest"}, status=status.HTTP_200_OK)
