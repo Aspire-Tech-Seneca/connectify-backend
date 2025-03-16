@@ -10,6 +10,7 @@ class UserProfile(AbstractUser):
     age = models.IntegerField(null=True, blank=True)
     bio = models.TextField(null=True, blank=True)
     location = models.CharField(max_length=50, null=True, blank=True)
+
     interest = models.ForeignKey('Interest', on_delete=models.SET_NULL, null=True, blank=True, related_name='users')
 
     def save(self, *args, **kwargs):
@@ -28,6 +29,22 @@ class ProfileImage(models.Model):
 
     def __str__(self):
         return f'{self.user.username} Profile Image'
+    
+
+class Gallery(models.Model):
+
+    user = models.OneToOneField(UserProfile, on_delete=models.CASCADE, related_name='gallery')
+
+    def __str__(self):
+        return f"{self.user.username} Gallery"
+
+
+class GalleryImage(models.Model):
+    gallery = models.ForeignKey(Gallery, on_delete=models.CASCADE, related_name='gallery_images')
+    image_url = models.URLField(max_length=500, blank=True, null=True)
+
+    def __str__(self):
+        return self.image_url
     
 
 class Interest(models.Model):

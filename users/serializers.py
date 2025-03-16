@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth import get_user_model
-from users.models import Interest, ProfileImage, Matchup
+from users.models import Interest, ProfileImage,Gallery, \
+                         GalleryImage, Matchup
 
 
 User = get_user_model()
@@ -16,7 +17,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'fullname', 'age', 'password']
+        fields = ['email', 'fullname', 'age', 'password', 'bio', 'location']
 
     def create(self, validated_data):
         user = User.objects.create_user(
@@ -25,6 +26,8 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             password = validated_data.get('password'),
             age = validated_data.get('age'),
             fullname = validated_data.get('fullname'),
+            bio = validated_data.get('bio'),
+            location = validated_data.get('location'),
         )
         user.set_password(validated_data['password'])  # Hash password
         user.save()
@@ -37,6 +40,20 @@ class ProfileImageSerializer(serializers.ModelSerializer):
         fields = ['image_url']
 
 
+class GalleryImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GalleryImage
+        fields = ['image_url']
+
+
+class GallerySerializer(serializers.ModelSerializer):
+    images = GalleryImageSerializer(many=True, read_only=True)  # Nested images
+
+    class Meta:
+        model = Gallery
+        fields = ['name', 'description', 'images']
+
+
 class InterestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Interest
@@ -45,11 +62,13 @@ class InterestSerializer(serializers.ModelSerializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
     profile_image = ProfileImageSerializer(read_only=True)
+    gallery = GallerySerializer(read_only=True)
     interest = InterestSerializer(read_only=True)
 
     class Meta:
         model = User
-        fields = ['id', 'email', 'fullname', 'age', 'bio', 'location', 'profile_image', 'interest']
+        fields = ['id', 'email', 'fullname', 'age', 'bio', 'location', 
+                  'profile_image', 'gallery', 'interest']
 
 
 class ChangePasswordSerializer(serializers.Serializer):

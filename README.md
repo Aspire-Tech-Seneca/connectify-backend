@@ -2,170 +2,6 @@
 
 ## For matchup request and confirmation
 
-> **_Note:_** There are five different matching-up statuses:
-
-  ```
-  0 - not-started (No matchup requests started from any side)
-  1 - requested (The requester has sent matchup request and is waiting for confirmation from the receiver)
-  2 - pending (The receiver received the matchup request but has not confirmed it yet)
-  3 - confirmed (The receiver confirmed the matchup request)
-  4 - denied (The receiver denied the matchup request)
-  5 - blocked (The receiver blocked the matchup request)
-  ```
-
-1. Request matchup API (used for the requester)
-   - URL: http://localhost:8000/users/request-matchup/
-   - Method: POST
-   - Request Header:
-     Content-Type: application/json
-     Authorization: Bearer <access token>
-   - Request Body: 
-     ```
-      {
-        "receiver-user-id": "<user-id>",
-      }
-     ```
-   - Response Body: 
-     - "message: the matchup request has already been sent successfully." with HTTP_200_OK if the matchup status is not-started (0)
-     - "message: the matchup request has already been sent and please wait for confirmation from the receiver." with HTTP_400_BAD_REQUEST if the matchup status is requested (1)
-     - "message: the user sent you a matchup request, please confirm it." with HTTP_400_BAD_REQUEST if the matchup status is pending (2)
-     - "message: you are already friends." with HTTP_400_BAD_REQUEST if the matchup status is confirmed (3)
-     - "message: Sorry, the receiver doen't want to be your friend." with HTTP_400_BAD_REQUEST if the matchup status is confirmed (4)
-
-2. Get matchup status API (used for updating the receiver's matchup status)
-   - URL: http://localhost:8000/users/get-matchup-status/
-   - Method: GET
-   - Request Header:
-     Authorization: Bearer <access token>
-   - Request Body: empty
-   - Response Body: 
-     A list of users with the request status "pending", example
-     ```
-      [
-        {
-          "id": 4,
-          "email": "eni@example.com",
-          "fullname": "eni",
-          "age": 25,
-          "bio": null,
-          "location": null,
-          "profile_image":{
-            "image_url": null
-          },
-          "interest":{
-            "id": 2,
-            "name": "travel"
-          }
-        },
-        {
-          "id": 5,
-          "email": "zara@example.com",
-          "fullname": "zara",
-          "age": 25,
-          "bio": null,
-          "location": null,
-          "profile_image":{
-            "image_url": null
-          },
-          "interest":{
-            "id": 2,
-            "name": "travel"
-          }
-        }
-      ]
-     ```
-
-3. Confirm matchup request API (used for the receiver)
-   - URL: http://localhost:8000/users/confirm-matchup-request/
-   - Method: PUT
-   - Request Header:
-     Content-Type: application/json
-     Authorization: Bearer <access token>
-   - Request Body: 
-     ```
-      {
-        "requester-user-id": "<user-id>",
-      }
-     ```
-   - Response Body: 
-     - "message: the matchup request has been confirmed successfully." with HTTP_200_OK.
-     - HTTP_400_BAD_REQUEST
-
-4. Get the list of my matchups API (used for all users)
-   - URL: http://localhost:8000/users/get-mymatchup-list/
-   - Method: GET
-   - Request Header:
-     Authorization: Bearer <access token>
-   - Request Header: empty
-   - Response Body: 
-     A list of users who are my matchups, example:
-     ```
-      [
-        {
-          "id": 4,
-          "email": "eni@example.com",
-          "fullname": "eni",
-          "age": 25,
-          "bio": null,
-          "location": null,
-          "profile_image":{
-            "image_url": null
-          },
-          "interest":{
-            "id": 2,
-            "name": "travel"
-          }
-        },
-        {
-          "id": 5,
-          "email": "zara@example.com",
-          "fullname": "zara",
-          "age": 25,
-          "bio": null,
-          "location": null,
-          "profile_image":{
-            "image_url": null
-          },
-          "interest":{
-            "id": 2,
-            "name": "travel"
-          }
-        }
-      ]
-     ```
-
-5. Deny matchup request API (used for the receiver)
-   - URL: http://localhost:8000/users/deny-matchup-request/
-   - Method: PUT
-   - Request Header:
-     Content-Type: application/json
-     Authorization: Bearer <access token>
-   - Request Body: 
-     ```
-      {
-        "requester-user-id": "<user-id>",
-      }
-     ```
-   - Response Body: 
-     - "message: the matchup request has been denied successfully." with HTTP_200_OK.
-     - HTTP_400_BAD_REQUEST
-
-6. Block matchup request API (used for the receiver)
-   - URL: http://localhost:8000/users/block-matchup-request/
-   - Method: PUT
-   - Request Header:
-     Content-Type: application/json
-     Authorization: Bearer <access token>
-   - Request Body: 
-     ```
-      {
-        "requester-user-id": "<user-id>",
-      }
-     ```
-   - Response Body: 
-     - "message: the matchup request has been blocked successfully." with HTTP_200_OK.
-     - HTTP_400_BAD_REQUEST
-
 
 # Docker Compose
 
@@ -198,7 +34,13 @@ docker ps -a
 docker exec -it <django_app_container_id> python manage.py migrate
 ```
 
-5. Stop containers
+5. Insert example data
+
+```
+python manage.py dbshell < database/migrate_data.sql
+```
+
+6. Stop containers
 
 Stop the containers
 
@@ -410,17 +252,58 @@ python manage.py runserver
      Name: profile_image
      Type: File
      Choose a file: <the image to upload>
+     
+     Name: gallery_images
+     Type: File
+     Choose a file: <the image to upload>
+     ......
+     Name: gallery_images
+     Type: File
+     Choose a file: <the image to upload>
+
    - Response Body: 
      image_url returned in the response body when uploading suceeded.
     ![Upload profile image](images/08-upload-profile-image.png)   
 
+   An example of how to call this API in frontend using javascript code
+   ```
+    const uploadImages = async (profileImage, galleryImages) => {
+        const formData = new FormData();
+
+        formData.append("profile_image", profileImage); // Single profile image
+
+        // Append multiple gallery images
+        for (let i = 0; i < galleryImages.length; i++) {
+            formData.append("gallery_images", galleryImages[i]); // "gallery_images[]" will be recognized by Django
+        }
+
+        try {
+            const response = await fetch("http://localhost:8000/api/upload-images/", {
+                method: "POST",
+                body: formData,
+            });
+            const result = await response.json();
+            console.log(result);
+        } catch (error) {
+            console.error("Error uploading files:", error);
+        }
+    };
+
+    // Example usage
+    const profileInput = document.querySelector("#profile-input");
+    const galleryInput = document.querySelector("#gallery-input");
+
+    document.querySelector("#upload-btn").addEventListener("click", () => {
+        uploadImages(profileInput.files[0], galleryInput.files);
+    });
+   ```
 9. Retrieve profile image (URL)
    - URL: http://localhost:8000/users/retrieve-profile-image/
    - Method: GET
    - Request Header:
      Authorization: Bearer <access token>
    - Response Body: 
-     image_name returned in the response body when uploading suceeded.
+     name of profile image and a list of names of gallery images returned in the response body when uploading suceeded.
     ![Retrieve URL of profile image](images/09-retrieve-profile-image.png)
 
 #### User interest selecting

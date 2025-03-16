@@ -1,13 +1,13 @@
 from django.contrib.auth import authenticate, get_user_model
+from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from users.serializers import UserRegisterSerializer, UserProfileSerializer, \
-                              ChangePasswordSerializer, InterestSerializer, \
-                              MatchupSerializer, MatchupCreateSerializer, MatchupUpdateSerializer
-from users.models import ProfileImage, Interest, Matchup
-from users.azure_utils import upload_profile_image
+                              ChangePasswordSerializer, InterestSerializer
+from users.models import ProfileImage, Interest, Matchup, Gallery, GalleryImage
+from users.azure_utils import upload_image, delete_image
 from rest_framework.views import APIView
 from django.db.models import Q
 import uuid
@@ -88,6 +88,9 @@ class UpdateUserProfileView(APIView):
 class DeleteUserProfileView(APIView):
     def delete(self, request):
         user = request.user
+        profileimage_name = user.profile_image.image_url.split('/')[-1]
+        if not profileimage_name:
+            delete_image(profileimage_name)
         user.delete()
         return Response({"message": "User deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
     
@@ -111,30 +114,90 @@ class ChangePasswordView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# Upload Profile Image API
+# # Upload Profile Image API -- Only for profile image
+# class ProfileImageUploadView(APIView):
+#     """
+#     API endpoint to upload a profile image for the authenticated user.
+#     """
+
+#     def put(self, request, *args, **kwargs):
+#         # Retrieve the user’s profile
+#         user_id = request.user.id
+#         profile_image, created = ProfileImage.objects.get_or_create(user_id=user_id)
+        
+#         # Get the profile image file
+#         profileimage_file = request.FILES.get('profile_image')
+#         if not profileimage_file:
+#             return Response({"error": "No file uploaded"}, status=status.HTTP_400_BAD_REQUEST)
+        
+#         # Optionally generate a unique filename
+#         extension = profileimage_file.name.split('.')[-1]
+#         profileimage_filename = f"profile_images/{uuid.uuid4()}.{extension}"
+        
+#         # Upload the profileimage file to Azure Blob Storage with a unique filename
+#         blob_url = upload_image(profileimage_file, profileimage_filename)
+        
+#         # Save the profile image URL in the database
+#         profile_image.image_url = blob_url
+#         profile_image.save()
+
+#         # Serialize the response
+        
+#         return Response({"message": "Profile image uploaded successfully", "image_url": blob_url},
+#                         status=status.HTTP_200_OK)
+
+
+# Upload Gallery Image API -- For profile image and gallery images
 class ProfileImageUploadView(APIView):
+    """
+    API endpoint to upload one gallery image for the authenticated user.
+    """
+
     def put(self, request, *args, **kwargs):
         # Retrieve the user’s profile
         user_id = request.user.id
         profile_image, created = ProfileImage.objects.get_or_create(user_id=user_id)
         
-        # Get the uploaded file
-        uploaded_file = request.FILES.get('profile_image')
-        if not uploaded_file:
+        # Get the profile image file
+        profileimage_file = request.FILES.get('profile_image')
+        if not profileimage_file:
             return Response({"error": "No file uploaded"}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Optionally generate a unique filename
-        extension = uploaded_file.name.split('.')[-1]
-        unique_filename = f"profile_images/{uuid.uuid4()}.{extension}"
+        # Generate a unique filename
+        extension = profileimage_file.name.split('.')[-1]
+        folder = "profile_images"
+        profileimage_filename = f"{uuid.uuid4()}.{extension}"
         
-        # Upload the file to Azure Blob Storage
-        blob_url = upload_profile_image(uploaded_file, unique_filename)
+        # Upload the profileimage file to Azure Blob Storage with a unique filename
+        blob_url = upload_image(profileimage_file, profileimage_filename, folder)
         
-        # Save the blob URL in the database
+        # Save the profile image URL in the database
         profile_image.image_url = blob_url
         profile_image.save()
+
+        # Get the list of gallery image files
+        galleryimage_files = request.FILES.getlist('gallery_images')
+
+        if galleryimage_files:
+            gallery, created = Gallery.objects.get_or_create(user_id=user_id)
+            folder = "gallery_images"
+
+            for galleryimage_file in galleryimage_files:
+                # Optionally generate a unique filename
+                extension = galleryimage_file.name.split('.')[-1]
+                galleryimage_filename = f"{uuid.uuid4()}.{extension}"
+                
+                # Upload the gallery image file to Azure Blob Storage with a unique filename
+                blob_url = upload_image(galleryimage_file, galleryimage_filename, folder)
+                
+                # Save the gallery image URL in the database
+                gallery_image = GalleryImage(gallery=gallery, image_url=blob_url)
+                gallery_image.save()
+            gallery.save()
+
+        # Serialize the response
         
-        return Response({"message": "Image uploaded successfully", "image_url": blob_url},
+        return Response({"message": "Images uploaded successfully"},
                         status=status.HTTP_200_OK)
 
 
@@ -147,10 +210,24 @@ class ProfileImageRetrieveView(APIView):
         except ProfileImage.DoesNotExist:
             return Response({"error": "Profile not found"}, status=status.HTTP_404_NOT_FOUND)
         
+        try:
+            gallery = Gallery.objects.get(user_id=user_id)
+        except gallery.DoesNotExist:
+            return Response({"error": "Gallery not found"}, status=status.HTTP_404_NOT_FOUND)
+
         image_name = profileImage.image_url.split('/')[-1]
-        return Response({"profile_image_name": image_name}, status=status.HTTP_200_OK)
+        gallery_images = [image.image_url.split('/')[-1] for image in gallery.gallery_images.all()]
+        gallery_images = ', '.join(gallery_images)
+        return Response(
+            {
+                "profile_image (filename)": f"profile_images/{image_name}", 
+                "gallery_images (filenames)": f"gallery_images/[{gallery_images}]"
+            },
+            status=status.HTTP_200_OK
+        )
 
 
+            
 # Get Interest Choices API
 class InterestListView(APIView):
     def get(self, request, *args, **kwargs):
