@@ -636,3 +636,77 @@ python manage.py runserver
      - HTTP_400_BAD_REQUEST
 
     ![Block any matchup request current and in the future](images/19-block-matchup-request.png)
+
+
+#### For events management
+
+20. Create event API 
+    Use case: Create events with event name (title), event date, event time, location, description, category, allowing users who creates the event to upload an image (only one image supported now) for the event.
+    - A user must log into their account before create an event
+
+   - URL: http://localhost:8000/events/create/
+   - Method: POST
+   - Request Header:
+     Content-Type: application/json
+     Content-Type: multipart/form-data
+     Authorization: Bearer <access token>
+   - Request Body: 
+     Name: event_data
+     Type: File
+     Choose a file: a JSON file with information of the event, for example
+     ```
+      {
+        "event_name": "LLM Workshop",
+        "event_date": "2025-06-01",
+        "event_time": "19:00",
+        "location": "Toronto",
+        "description": "This is a workshop on LLM.",
+        "category": "Workshop"
+      }
+     ```
+     
+     Name: event_image
+     Type: File
+     Choose a file: <the image to upload>
+   
+   - Response Body: 
+     - "message: the event has been created successfully." with HTTP_200_OK.
+     - HTTP_400_BAD_REQUEST
+
+    ![Create an event](images/20-create-event.png)
+
+
+     Content-Type: multipart/form-data
+     Authorization: Bearer <access token>
+   - Request Body (Form):
+     Name: profile_image
+     Type: File
+     Choose a file: <the image to upload>
+
+
+
+21. List events (filtered by location and date) API 
+    Use case: List all events filtered according to conditions such as location, dates between date_from and date_to.
+
+   - URL: http://localhost:8000/events/list/
+   - Method: POST
+   - Request Header:
+     Content-Type: application/json
+   - Request Body: 
+     ```
+      {
+        "location": "<location>",
+        "date_from": "<date_from>"
+        "date_to": "<date_to>"
+      }
+     ```
+   - Response Body: 
+     ```
+     [
+
+     ]
+     ```
+
+    ![List a list of events that will happen at a location from date_from to date_to.](images/21-list-events.png)
+
+

@@ -28,6 +28,7 @@ def upload_image(file_data, filename, folder):
     # Construct the blob URL (depending on your account settings)
     return image_client.url
 
+
 def delete_image(filename, folder):
     """Deletes a blob from the container."""
     image_client = container_client.get_blob_client(f"{folder}/{filename}")
