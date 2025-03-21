@@ -25,7 +25,7 @@ COPY . /app
 EXPOSE 8000
 
 # Start your Django development server (for development)
-CMD ["sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
+CMD ["sh", "-c", "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
 
 # For production, use a WSGI server like Gunicorn
 # CMD ["gunicorn", "--bind=0.0.0.0:8000", "your_project.wsgi"]
