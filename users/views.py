@@ -216,11 +216,11 @@ class ProfileImageRetrieveView(APIView):
 
         image_name = profileImage.image_url.split('/')[-1]
         gallery_images = [image.image_url.split('/')[-1] for image in gallery.gallery_images.all()]
-        gallery_images = ', '.join(gallery_images)
+        gallery_images = ['gallery_images/'+image_name for image_name in gallery_images]
         return Response(
             {
-                "profile_image (filename)": f"profile_images/{image_name}", 
-                "gallery_images (filenames)": f"gallery_images/[{gallery_images}]"
+                "profile_image": f"profile_images/{image_name}", 
+                "gallery_images": gallery_images
             },
             status=status.HTTP_200_OK
         )
