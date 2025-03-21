@@ -51,7 +51,7 @@ class GallerySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Gallery
-        fields = ['name', 'description', 'images']
+        fields = ['images']
 
 
 class InterestSerializer(serializers.ModelSerializer):
@@ -70,6 +70,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
         fields = ['id', 'email', 'fullname', 'age', 'bio', 'location', 
                   'profile_image', 'gallery', 'interest']
 
+    def get_gallery(self, obj):
+        gallery = getattr(obj, 'gallery', None)
+        if gallery is not None:
+            return GallerySerializer(gallery).data
+        return None
+    
 
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(write_only=True, required=True)

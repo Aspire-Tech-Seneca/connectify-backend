@@ -6,10 +6,12 @@ from users.models import UserProfile, ProfileImage, Gallery
 def create_profile_image(sender, instance, created, **kwargs):
     if created:
         # When a new UserProfile is created, create a ProfileImage associated with it
-        ProfileImage.objects.create(user=instance)
+        # ProfileImage.objects.create(user=instance)
+        instance.save()
 
 
 @receiver(post_save, sender=UserProfile)
 def create_gallery(sender, instance, created, **kwargs):
     if created:
-        Gallery.objects.create(user=instance)
+        # Gallery.objects.create(user=instance)
+        instance.save()

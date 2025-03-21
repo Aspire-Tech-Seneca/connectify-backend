@@ -34,13 +34,7 @@ docker ps -a
 docker exec -it <django_app_container_id> python manage.py migrate
 ```
 
-5. Insert example data
-
-```
-python manage.py dbshell < database/migrate_data.sql
-```
-
-6. Stop containers
+5. Stop containers
 
 Stop the containers
 
@@ -97,14 +91,16 @@ Install dependencies
 ```pip install -r requirements.txt```
 
 
-### 3. Make migrations and migrate
+### 3. Make migrations, then migrate and insert example data
 
 For development purpose, the .env file is included in the repo. It includes necessary environment variables to ensure code runs smoothly
 
 ```
 python manage.py makemigrations
 python manage.py migrate
+python manage.py dbshell < database/migrate_data.sql
 ```
+
 
 > **_Note:_** If something wrong when you run `python manage.py makemigrations`, try deleting `0001_initial.py` and run the command again.
 

@@ -63,13 +63,27 @@ class RetrieveUserInfoView(APIView):
     def get(self, request):
         user = request.user
 
-        # Optimize the query 
-        user = User.objects.select_related('profile_image', 'interest').get(id=user.id)
         if not user:
             return Response({"error": "User not authenticated"}, status=status.HTTP_401_UNAUTHORIZED)
         
+        # Optimize the query 
+        user = User.objects.select_related('profile_image', 'gallery', 'interest')\
+                        .prefetch_related('gallery__gallery_images')\
+                        .get(id=user.id)
+
+        # Safely extract gallery images if gallery exists
+        gallery_images = []
+        if hasattr(user, 'gallery') and user.gallery:
+            gallery_images = [
+                'gallery_images/' + image.image_url.split('/')[-1]
+                for image in user.gallery.gallery_images.all()
+            ]
+                    
         serializer = UserProfileSerializer(user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        data = serializer.data
+        data['gallery_images'] = gallery_images
+
+        return Response(data, status=status.HTTP_200_OK)
 
 
 # User Profile Update API
