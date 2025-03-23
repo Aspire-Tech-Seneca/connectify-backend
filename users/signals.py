@@ -6,8 +6,8 @@ from users.models import UserProfile, ProfileImage, Gallery
 def create_profile_image(sender, instance, created, **kwargs):
     if created:
         # When a new UserProfile is created, create a ProfileImage associated with it
-        # ProfileImage.objects.create(user=instance)
-        instance.save()
+        ProfileImage.objects.create(user=instance)
+        # instance.save()
 
 
 @receiver(post_save, sender=UserProfile)

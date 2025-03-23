@@ -4,7 +4,8 @@ from rest_framework import status, permissions
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from users.serializers import UserRegisterSerializer, UserProfileSerializer, \
-                              ChangePasswordSerializer, InterestSerializer
+                              ChangePasswordSerializer, InterestSerializer, ProfileImageSerializer, \
+                              GallerySerializer, MatchupSerializer
 from users.models import ProfileImage, Interest, Matchup, Gallery, GalleryImage
 from users.azure_utils import upload_image, delete_image
 from rest_framework.views import APIView
@@ -127,39 +128,6 @@ class ChangePasswordView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# # Upload Profile Image API -- Only for profile image
-# class ProfileImageUploadView(APIView):
-#     """
-#     API endpoint to upload a profile image for the authenticated user.
-#     """
-
-#     def put(self, request, *args, **kwargs):
-#         # Retrieve the user’s profile
-#         user_id = request.user.id
-#         profile_image, created = ProfileImage.objects.get_or_create(user_id=user_id)
-        
-#         # Get the profile image file
-#         profileimage_file = request.FILES.get('profile_image')
-#         if not profileimage_file:
-#             return Response({"error": "No file uploaded"}, status=status.HTTP_400_BAD_REQUEST)
-        
-#         # Optionally generate a unique filename
-#         extension = profileimage_file.name.split('.')[-1]
-#         profileimage_filename = f"profile_images/{uuid.uuid4()}.{extension}"
-        
-#         # Upload the profileimage file to Azure Blob Storage with a unique filename
-#         blob_url = upload_image(profileimage_file, profileimage_filename)
-        
-#         # Save the profile image URL in the database
-#         profile_image.image_url = blob_url
-#         profile_image.save()
-
-#         # Serialize the response
-        
-#         return Response({"message": "Profile image uploaded successfully", "image_url": blob_url},
-#                         status=status.HTTP_200_OK)
-
-
 # Upload Gallery Image API -- For profile image and gallery images
 class ProfileImageUploadView(APIView):
     """
@@ -217,30 +185,66 @@ class ProfileImageUploadView(APIView):
 # Retrieve Profile Image API
 class ProfileImageRetrieveView(APIView):
     def get(self, request, *args, **kwargs):
-        user_id = request.user.id
-        try:
-            profileImage = ProfileImage.objects.get(user_id=user_id)
-        except ProfileImage.DoesNotExist:
-            return Response({"error": "Profile not found"}, status=status.HTTP_404_NOT_FOUND)
-        
-        try:
-            gallery = Gallery.objects.get(user_id=user_id)
-        except gallery.DoesNotExist:
-            return Response({"error": "Gallery not found"}, status=status.HTTP_404_NOT_FOUND)
+        user = request.user
 
-        image_name = profileImage.image_url.split('/')[-1]
-        gallery_images = [image.image_url.split('/')[-1] for image in gallery.gallery_images.all()]
-        gallery_images = ['gallery_images/'+image_name for image_name in gallery_images]
+        if not user:
+            return Response({"error": "User not authenticated"}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        # Optimize the query 
+        user = User.objects.select_related('profile_image', 'gallery', 'interest')\
+                        .prefetch_related('gallery__gallery_images')\
+                        .get(id=user.id)
+        
+        profile_image = None
+        if hasattr(user, 'profile_image') and user.profile_image and user.profile_image.image_url:
+            image_name = user.profile_image.image_url.split('/')[-1]
+            profile_image = f"profile_images/{image_name}"
+
+        # Safely extract gallery images if gallery exists
+        gallery_images = []
+        if hasattr(user, 'gallery') and user.gallery:
+            gallery_images = [
+                'gallery_images/' + image.image_url.split('/')[-1]
+                for image in user.gallery.gallery_images.all()
+            ]
+
         return Response(
             {
-                "profile_image": f"profile_images/{image_name}", 
+                "profile_image": profile_image, 
                 "gallery_images": gallery_images
             },
             status=status.HTTP_200_OK
         )
 
 
-            
+# Delete Gallery Image API
+class GalleryImageDeleteView(APIView):
+    def patch(self, request, *args, **kwargs):
+        user = request.user
+        if not user:
+            return Response({"error": "User not authenticated"}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        # Optimize the query 
+        user = User.objects.select_related('profile_image', 'gallery', 'interest')\
+                        .prefetch_related('gallery__gallery_images')\
+                        .get(id=user.id)
+        
+        image = request.data.get('image')
+        if not image:
+            return Response({"error": "Image not provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if hasattr(user, 'gallery') and user.gallery:
+            try:
+                user.gallery.gallery_images.filter(image_url__contains=image).delete()
+                delete_image(image.split('/')[-1], "gallery_images")
+            except GalleryImage.DoesNotExist:
+                return Response({"error": "Image not found"}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response({"error": "Gallery not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        return Response({"message": "Gallery images deleted successfully"}, status=status.HTTP_200_OK)
+
+
 # Get Interest Choices API
 class InterestListView(APIView):
     def get(self, request, *args, **kwargs):

@@ -11,6 +11,7 @@ urlpatterns = [
     path('change-password/', views.ChangePasswordView.as_view(), name='change-password'),
     path('upload-profile-image/', views.ProfileImageUploadView.as_view(), name='upload-profile-image'),
     path('retrieve-profile-image/', views.ProfileImageRetrieveView.as_view(), name='retrieve-profile-image'),
+    path('delete-gallery-image/', views.GalleryImageDeleteView.as_view(), name='delete-gallery-image'),
     path('get-interest-list/', views.InterestListView.as_view(), name='get-interests-list'),
     path('update-interest/', views.UserInterestSetView.as_view(), name='update-interest'),
     path('retrieve-interest/', views.UserInterestRetrieveView.as_view(), name='retrieve-interest'),
