@@ -442,7 +442,7 @@ class ConfirmMatchupRequestAPIView(APIView):
         Notification.objects.create(
             owner=requester,  # The message will sent to the user who sent matchup request previously
             requester=request.user,
-            detail=f"{requester.fullname} confirmed you matchup request, now you can chat",
+            detail=f"{request.user.fullname} confirmed you matchup request, now you can chat",
             status='new',
             type='matchup'
         )
@@ -484,8 +484,8 @@ class DenyMatchupRequestAPIView(APIView):
 
         # Check if a matchup exists between the users
         try:
-            matchup_requester = Matchup.objects.get(requester=requester, receiver=receiver)
-            matchup_receiver = Matchup.objects.get(requester=receiver, receiver=requester)
+            matchup_requester = Matchup.objects.get(requester=requester, receiver=receiver, status=Matchup.status_choices[1][0])
+            matchup_receiver = Matchup.objects.get(requester=receiver, receiver=requester, status=Matchup.status_choices[2][0])
         except Matchup.DoesNotExist:
             return Response({"detail": "Matchup request not found."}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -499,7 +499,7 @@ class DenyMatchupRequestAPIView(APIView):
         Notification.objects.create(
             owner=requester,  # The message will sent to the user who sent matchup request previously
             requester=request.user,
-            detail=f"{requester.fullname} denied you matchup request, you can send them new requests later",
+            detail=f"{request.user.fullname} denied you matchup request, you can send them new requests later",
             status='new',
             type='matchup'
         )
@@ -524,8 +524,8 @@ class BlockMatchupRequestAPIView(APIView):
 
         # Check if a matchup exists between the users
         try:
-            matchup_requester = Matchup.objects.get(requester=requester, receiver=receiver)
-            matchup_receiver = Matchup.objects.get(requester=receiver, receiver=requester)
+            matchup_requester = Matchup.objects.get(requester=requester, receiver=receiver, status=Matchup.status_choices[1][0])
+            matchup_receiver = Matchup.objects.get(requester=receiver, receiver=requester, status=Matchup.status_choices[2][0])
         except Matchup.DoesNotExist:
             return Response({"detail": "Matchup request not found."}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -539,7 +539,7 @@ class BlockMatchupRequestAPIView(APIView):
         Notification.objects.create(
             owner=requester,  # The message will sent to the user who sent matchup request previously
             requester=request.user,
-            detail=f"{requester.fullname} blocked you matchup request, you cannot send them any requests",
+            detail=f"{request.user.fullname} blocked you matchup request, you cannot send them any requests",
             status='new',
             type='matchup'
         )
