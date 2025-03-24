@@ -238,7 +238,7 @@ python manage.py runserver
 
 #### Profile Image Management
 
-8. Upload profile image
+8. Upload profile and gallery images
    - URL: http://127.0.0.1:8000/users/upload-profile-image/
    - Method: PUT
    - Request Header:
@@ -293,7 +293,8 @@ python manage.py runserver
         uploadImages(profileInput.files[0], galleryInput.files);
     });
    ```
-9. Retrieve profile image (URL)
+
+9. Retrieve profile and gallery images
    - URL: http://localhost:8000/users/retrieve-profile-image/
    - Method: GET
    - Request Header:
@@ -301,6 +302,23 @@ python manage.py runserver
    - Response Body: 
      name of profile image and a list of names of gallery images returned in the response body when uploading suceeded.
     ![Retrieve URL of profile image](images/09-retrieve-profile-image.png)
+
+9-1. Delete a gallery image
+   - URL: http://localhost:8000/users/delete-gallery-image/
+   - Method: PATCH
+   - Request Header:
+     Authorization: Bearer <access token>
+     Content-Type: application/json
+   - Request Body:
+     ```
+     {
+       "image": "gallery_images/739716a6-3129-4e16-9943-2a6571f1d7d2.jpeg"
+     }
+     ```
+   - Response Body: 
+     message of success or failure
+    ![Retrieve URL of profile image](images/09-01-delete-gallery-image.png)
+
 
 #### User interest selecting
 
@@ -672,15 +690,6 @@ python manage.py runserver
     ![Create an event](images/20-create-event.png)
 
 
-     Content-Type: multipart/form-data
-     Authorization: Bearer <access token>
-   - Request Body (Form):
-     Name: profile_image
-     Type: File
-     Choose a file: <the image to upload>
-
-
-
 21. List events (filtered by location and date) API 
     Use case: List all events filtered according to conditions such as location, dates between date_from and date_to.
 
@@ -692,7 +701,7 @@ python manage.py runserver
      ```
       {
         "location": "<location>",
-        "date_from": "<date_from>"
+        "date_from": "<date_from>",
         "date_to": "<date_to>"
       }
      ```
@@ -705,4 +714,67 @@ python manage.py runserver
 
     ![List a list of events that will happen at a location from date_from to date_to.](images/21-list-events.png)
 
+
+#### For notification management
+
+22. List notification (filtered by location and date) API 
+    Use case: List all notifications that belongs to a user.
+
+   - URL: http://localhost:8000/notifications/list/
+   - Method: GET
+   - Request Header:
+     Authorization: Bearer <access token>
+   - Request Body: None
+   - Response Body: 
+     ```
+      [
+        {
+        "id": 12,
+        "owner": "Jill",
+        "requester": "Bob Smith",
+        "detail": "Bob Smith sent you a matchup request",
+        "created_at": "2025-03-24T01:44:19.888654Z",
+        "status": "new",
+        "type": "matchup"
+        },
+        {
+        "id": 10,
+        "owner": "Jill",
+        "requester": "Alice Johnson",
+        "detail": "Alice Johnson sent you a matchup request",
+        "created_at": "2025-03-24T01:37:35.113609Z",
+        "status": "new",
+        "type": "matchup"
+        }, ...     
+      ]
+     ```
+
+    ![List notifications of a user.](images/22-list-notifications.png)
+
+
+23. Update notification (filtered by location and date) API 
+    Use case: update the status of the notification, such as from "new" to "read" when the user has already read the notification.
+
+   - URL: http://localhost:8000/events/update/
+   - Method: PATCH
+   - Request Header:
+     Content-Type: application/json
+     Authorization: Bearer <access token>
+   - Request Body: 
+     ```
+      {
+        "id": "<id of the notification>",
+        "status": "<status>"
+      }
+     ```
+   - Response Body: 
+     ```
+      {
+        "id": 3,
+        "status": "read",
+        "message": "Notification status updated to 'read'."
+      }     
+     ```
+
+    ![Update status of notification.](images/23-update-notification.png)
 

@@ -8,6 +8,7 @@ from users.serializers import UserRegisterSerializer, UserProfileSerializer, \
                               GallerySerializer, MatchupSerializer
 from users.models import ProfileImage, Interest, Matchup, Gallery, GalleryImage
 from users.azure_utils import upload_image, delete_image
+from notifications.models import Notification
 from rest_framework.views import APIView
 from django.db.models import Q
 import uuid
@@ -383,6 +384,16 @@ class RequestMatchupAPIView(APIView):
                 Matchup(requester=requester, receiver=receiver, status=Matchup.status_choices[1][0]),  # 'sent'
                 Matchup(requester=receiver, receiver=requester, status=Matchup.status_choices[2][0])   # 'received'
             ])
+
+            # Create notification for the receiver
+            Notification.objects.create(
+                owner=receiver,
+                requester=requester,
+                detail=f"{requester.fullname} sent you a matchup request",
+                status='new',
+                type='matchup'
+            )
+
             return Response({"message": "The matchup request has been sent successfully."}, status=status.HTTP_201_CREATED)
 
 
@@ -426,6 +437,15 @@ class ConfirmMatchupRequestAPIView(APIView):
         matchup_receiver.status = Matchup.status_choices[3][0]  # 'confirmed'
         matchup_requester.save()
         matchup_receiver.save()
+
+        # Create notification for the receiver
+        Notification.objects.create(
+            owner=requester,  # The message will sent to the user who sent matchup request previously
+            requester=request.user,
+            detail=f"{requester.fullname} confirmed you matchup request, now you can chat",
+            status='new',
+            type='matchup'
+        )
 
         return Response({"message": "The matchup request has been confirmed successfully."}, status=status.HTTP_200_OK)
 
@@ -475,6 +495,15 @@ class DenyMatchupRequestAPIView(APIView):
         matchup_requester.save()
         matchup_receiver.save()
 
+        # Create notification for the receiver
+        Notification.objects.create(
+            owner=requester,  # The message will sent to the user who sent matchup request previously
+            requester=request.user,
+            detail=f"{requester.fullname} denied you matchup request, you can send them new requests later",
+            status='new',
+            type='matchup'
+        )
+
         return Response({"message": "User has been denied successfully."}, status=status.HTTP_200_OK)
     
 
@@ -506,4 +535,12 @@ class BlockMatchupRequestAPIView(APIView):
         matchup_requester.save()
         matchup_receiver.save()
 
+        # Create notification for the receiver
+        Notification.objects.create(
+            owner=requester,  # The message will sent to the user who sent matchup request previously
+            requester=request.user,
+            detail=f"{requester.fullname} blocked you matchup request, you cannot send them any requests",
+            status='new',
+            type='matchup'
+        )
         return Response({"message": "User has been blocked successfully."}, status=status.HTTP_200_OK)
