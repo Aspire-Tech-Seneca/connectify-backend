@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 name: Connectify - Front
+=======
+name: Connectify - Backend
+>>>>>>> 7c451e7545abd6264e69e906bdbed52608ce1be4
 
 on:
   push:
@@ -40,4 +44,8 @@ jobs:
           docker build -t $IMG .
 
           echo "DOCKER | Push Image"
+<<<<<<< HEAD
           docker push $IMG
+=======
+          docker push $IMG
+>>>>>>> 7c451e7545abd6264e69e906bdbed52608ce1be4

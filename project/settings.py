@@ -10,31 +10,31 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+import os
 from pathlib import Path
+import environ
 
-# import environ
 
-# # Initialize environment variables
-# env = environ.Env()
-# environ.Env.read_env()
+# Initialize environment variables
+env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env')
+env = environ.Env()
+environ.Env.read_env(env_path)
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent
-
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = env('SECRET_KEY')
-SECRET_KEY = "django-insecure-@glhbd3b#!$$m57(wv9#*rz8lj!%!xu*$oz$+i&1&kq-q&4^j_"
+SECRET_KEY = env('SECRET_KEY')
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -55,6 +55,8 @@ INSTALLED_APPS = [
 
     # Custom app(s)
     'users.apps.UsersConfig',
+    'events.apps.EventsConfig',
+    'notifications.apps.NotificationsConfig',
 ]
 
 MIDDLEWARE = [
@@ -92,22 +94,14 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME':     "users",        # The database name
-        'USER':     "admin",        # The PostgreSQL user
-        'PASSWORD': "passw0rd",     # The PostgreSQL user's password
-        'HOST':     "localhost",     
-        'PORT':     "5432",         # Default PostgreSQL port
-
-        # 'NAME':     env('POSTGRES_DB'),        # The database name
-        # 'USER':     env('POSTGRES_USER'),      # The PostgreSQL user
-        # 'PASSWORD': env('POSTGRES_PASSWORD'),  # The user's password
-        # 'HOST':     env('POSTGRES_HOST'),      # Using Docker to run PostgreSQL
-        # 'PORT':     env('POSTGRES_PORT'),      # Default PostgreSQL port
+        'NAME':     os.environ.get('DB_NAME', 'users'),        # The database name
+        'USER':     os.environ.get('DB_USER', 'admin'),        # The PostgreSQL user
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'passw0rd'), # The user's password
+        'HOST':     os.environ.get('DB_HOST', env('POSTGRES_HOST')),           # Using Docker to run PostgreSQL
+        'PORT':     '5432',                                    # Default PostgreSQL port
     }
 }
 
@@ -121,9 +115,6 @@ AUTHENTICATION_BACKENDS = [
 
 
 # Password validation
-# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
-
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -139,8 +130,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
 # Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
@@ -152,13 +143,9 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-
 STATIC_URL = 'static/'
 
 # Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
