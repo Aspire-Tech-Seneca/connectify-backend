@@ -2,11 +2,24 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth import get_user_model
 from users.models import Interest, ProfileImage,Gallery, \
-                         GalleryImage, Matchup
+                         GalleryImage, Matchup, Review, UserProfile
 
 
 User = get_user_model()
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = ['id', 'email', 'fullname', 'location']
+        # Note: username is the same as email in your model, so we don't need both
+
+class ReviewSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Review
+        fields = ['id', 'user', 'person_name', 'comment', 'rating', 'created_at']
+        
 
 class UserRegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
