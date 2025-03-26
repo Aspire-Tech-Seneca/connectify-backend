@@ -1,10 +1,26 @@
 from django import forms
-from .models import CustomUser
+from .models import CustomUser, Review
 from django.core.exceptions import ValidationError
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 
 # form front kar hast
 
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ['person_name', 'comment', 'rating']
+        widgets = {
+            'person_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Your Name'}),
+            'comment': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Write your review here...', 'rows': 4}),
+            'rating': forms.Select(attrs={'class': 'form-control'}),
+        }
+        labels = {
+            'person_name': 'Name',
+            'comment': 'Review',
+            'rating': 'Rating (1-5 stars)',
+        }
+
+#--------------------------------------------------------------------------    
 class UserCreationForm(forms.ModelForm):                    
     password1=forms.CharField(label="Password",widget=forms.PasswordInput)
     password2=forms.CharField(label="RePassword",widget=forms.PasswordInput)

@@ -778,3 +778,75 @@ python manage.py runserver
 
     ![Update status of notification.](images/23-update-notification.png)
 
+
+# API Endpoints
+
+| Endpoint                  | Method | Auth Required | Description                  |
+|--------------------------|--------|----------------|------------------------------|
+| `/api/reviews/`          | GET    | No             | List all reviews             |
+| `/api/reviews/`          | POST   | Yes            | Create a new review          |
+| `/api/reviews/<id>/`     | GET    | No             | Retrieve a specific review   |
+
+---
+
+## API Usage with Postman
+
+### Reading Reviews (Public)
+
+- **Request Type**: GET  
+- **URL**: `http://localhost:8000/api/reviews/`  
+- **Response**:
+
+```json
+[
+  {
+    "id": 1,
+    "user": {
+      "id": 1,
+      "email": "user@example.com",
+      "fullname": "Test User",
+      "location": "New York"
+    },
+    "comment": "Great product!",
+    "rating": 5,
+    "created_at": "2025-03-26T14:30:00Z"
+  }
+]
+```
+![Change password](images/24-get-all-review.png)
+---
+
+### Creating a Review (Auth Required)
+
+- **Request Type**: POST  
+- **URL**: `http://localhost:8000/api/reviews/`  
+- **Headers**:
+  - `Content-Type: application/json`
+  - `Authorization: Token your_token_here`
+- **Body**:
+
+```json
+{
+  "comment": "This product is amazing! I would definitely recommend it.",
+  "rating": 5
+}
+```
+
+- **Response**:
+
+```json
+{
+  "id": 2,
+  "user": {
+    "id": 1,
+    "email": "user@example.com",
+    "fullname": "Test User",
+    "location": "New York"
+  },
+  "comment": "This product is amazing! I would definitely recommend it.",
+  "rating": 5,
+  "created_at": "2025-03-26T15:45:00Z"
+}
+```
+![Change password](images/25-create-review.png)
+
