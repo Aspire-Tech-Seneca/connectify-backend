@@ -62,8 +62,7 @@ class ReviewDetailView(APIView):
         serializer = ReviewSerializer(review)
         return Response(serializer.data)
     
-
-
+#--------------------------------------------------------------------------------
 # Register API
 class RegisterView(APIView):
     def post(self, request):

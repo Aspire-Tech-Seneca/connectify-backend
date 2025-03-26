@@ -21,6 +21,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'person_name', 'comment', 'rating', 'created_at']
         
 
+#------------------------------------------------------------------------------------------
 class UserRegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
         required=True,
