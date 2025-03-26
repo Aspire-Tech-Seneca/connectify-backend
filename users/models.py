@@ -4,13 +4,12 @@ from django.contrib.auth.models import AbstractUser
 
 class Review(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='reviews')
-    person_name = models.CharField(max_length=100)
     comment = models.TextField()
     rating = models.IntegerField(choices=[(i, i) for i in range(1, 6)])  # 1-5 star rating
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Review by {self.person_name} - {self.rating} stars"
+        return f"Review by {self.user.fullname} - {self.rating} stars"
 
 
 class UserProfile(AbstractUser):
