@@ -19,7 +19,7 @@ __pycache__/
 *.pyo
 
 # Environment and sensitive information
-.env
+# .env
 # database/.env
 
 # IDE 
@@ -27,3 +27,5 @@ __pycache__/
 
 # OS
 .DS_Store
+
+# migrations
