@@ -1,12 +1,13 @@
 from django.contrib.auth import authenticate, get_user_model
 from rest_framework.response import Response
 from rest_framework import status, permissions
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from users.serializers import UserRegisterSerializer, UserProfileSerializer, \
                               ChangePasswordSerializer, InterestSerializer, ProfileImageSerializer, \
-                              GallerySerializer, MatchupSerializer
-from users.models import ProfileImage, Interest, Matchup, Gallery, GalleryImage
+                              GallerySerializer, MatchupSerializer, ReviewSerializer
+from users.models import ProfileImage, Interest, Matchup, Gallery, GalleryImage, Review
 from users.azure_utils import upload_image, delete_image
 from notifications.models import Notification
 from rest_framework.views import APIView
@@ -16,7 +17,52 @@ import uuid
 
 User = get_user_model()
 
+class ReviewListView(APIView):
+    """
+    List all reviews or create a new review.
+    """
+    def get_permissions(self):
+        # GET requests don't require authentication
+        if self.request.method == 'GET':
+            return [AllowAny()]
+        # POST requests require authentication
+        return [IsAuthenticated()]
+    
+    def get(self, request, format=None):
+        # List all reviews - anyone can view
+        reviews = Review.objects.all()
+        serializer = ReviewSerializer(reviews, many=True)
+        return Response(serializer.data)
+    
+    def post(self, request, format=None):
+        # Create a new review - only authenticated users
+        data = request.data.copy()
+        serializer = ReviewSerializer(data=data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class ReviewDetailView(APIView):
+    """
+    Retrieve a specific review.
+    """
+    permission_classes = [AllowAny]  # Anyone can read individual reviews
+    
+    def get_object(self, pk):
+        try:
+            return Review.objects.get(pk=pk)
+        except Review.DoesNotExist:
+            return None
+    
+    def get(self, request, pk, format=None):
+        review = self.get_object(pk)
+        if review is None:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        serializer = ReviewSerializer(review)
+        return Response(serializer.data)
+    
+#--------------------------------------------------------------------------------
 # Register API
 class RegisterView(APIView):
     def post(self, request):

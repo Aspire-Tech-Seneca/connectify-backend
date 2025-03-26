@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from rest_framework.authtoken import views as token_views
 
 urlpatterns = [
     path('create/', views.RegisterView.as_view(), name='signup'),
@@ -22,4 +23,8 @@ urlpatterns = [
     path('get-mymatchup-list/', views.GetMyMatchupListAPIView.as_view(), name='get-mymatchup-list'),
     path('deny-matchup-request/', views.DenyMatchupRequestAPIView.as_view(), name='deny-matchup-request'),
     path('block-matchup-request/', views.BlockMatchupRequestAPIView.as_view(), name='block-matchuprequest'),
+    # API endpoints
+    path('api/reviews/', views.ReviewListView.as_view(), name='review-list'),
+    path('api/reviews/<int:pk>/', views.ReviewDetailView.as_view(), name='review-detail'),
+    
 ]
