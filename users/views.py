@@ -149,9 +149,23 @@ class UpdateUserProfileView(APIView):
 class DeleteUserProfileView(APIView):
     def delete(self, request):
         user = request.user
-        profileimage_name = user.profile_image.image_url.split('/')[-1]
-        if not profileimage_name:
-            delete_image(profileimage_name)
+        if not user:
+            return Response({"error": "User not authenticated"}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        # Optimize the query 
+        user = User.objects.select_related('profile_image', 'gallery', 'interest')\
+                        .prefetch_related('gallery__gallery_images')\
+                        .get(id=user.id)
+        if hasattr(user, 'profile_image') and user.profile_image.image_url:
+            profileimage_name = user.profile_image.image_url.split('/')[-1]
+            if not profileimage_name:
+                delete_image(profileimage_name, "profile_images")
+        if hasattr(user, 'gallery') and user.gallery.gallery_images:
+            for galleryimage in user.gallery.gallery_images.all():
+                galleryimage_name = galleryimage.image_url.split('/')[-1]
+                if not galleryimage_name:
+                    delete_image(galleryimage_name, "gallery_images")
+
         user.delete()
         return Response({"message": "User deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
     
@@ -188,24 +202,22 @@ class ProfileImageUploadView(APIView):
         
         # Get the profile image file
         profileimage_file = request.FILES.get('profile_image')
-        if not profileimage_file:
-            return Response({"error": "No file uploaded"}, status=status.HTTP_400_BAD_REQUEST)
+        if profileimage_file:
         
-        # Generate a unique filename
-        extension = profileimage_file.name.split('.')[-1]
-        folder = "profile_images"
-        profileimage_filename = f"{uuid.uuid4()}.{extension}"
-        
-        # Upload the profileimage file to Azure Blob Storage with a unique filename
-        blob_url = upload_image(profileimage_file, profileimage_filename, folder)
-        
-        # Save the profile image URL in the database
-        profile_image.image_url = blob_url
-        profile_image.save()
+            # Generate a unique filename
+            extension = profileimage_file.name.split('.')[-1]
+            folder = "profile_images"
+            profileimage_filename = f"{uuid.uuid4()}.{extension}"
+            
+            # Upload the profileimage file to Azure Blob Storage with a unique filename
+            blob_url = upload_image(profileimage_file, profileimage_filename, folder)
+            
+            # Save the profile image URL in the database
+            profile_image.image_url = blob_url
+            profile_image.save()
 
         # Get the list of gallery image files
         galleryimage_files = request.FILES.getlist('gallery_images')
-
         if galleryimage_files:
             gallery, created = Gallery.objects.get_or_create(user_id=user_id)
             folder = "gallery_images"
@@ -223,10 +235,7 @@ class ProfileImageUploadView(APIView):
                 gallery_image.save()
             gallery.save()
 
-        # Serialize the response
-        
-        return Response({"message": "Images uploaded successfully"},
-                        status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)
 
 
 # Retrieve Profile Image API

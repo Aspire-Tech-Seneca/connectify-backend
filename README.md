@@ -471,7 +471,7 @@ python manage.py runserver
    - Request Body: 
      ```
       {
-        "receiver-user-id": "<user-id>",
+        "receiver-user-id": <user-id>,
       }
      ```
    - Response Body: 
@@ -755,7 +755,7 @@ python manage.py runserver
 23. Update notification (filtered by location and date) API 
     Use case: update the status of the notification, such as from "new" to "read" when the user has already read the notification.
 
-   - URL: http://localhost:8000/events/update/
+   - URL: http://localhost:8000/notifications/update/
    - Method: PATCH
    - Request Header:
      Content-Type: application/json
@@ -763,7 +763,7 @@ python manage.py runserver
    - Request Body: 
      ```
       {
-        "id": "<id of the notification>",
+        "id": <id of the notification>,
         "status": "<status>"
       }
      ```
