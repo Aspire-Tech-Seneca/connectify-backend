@@ -31,7 +31,7 @@ class CreateNotificationView(APIView):
 
         serializer = NotificationSerializer(data=request.data)
         if serializer.is_valid():
-            # ✅ Pass user instance, not ID
+            # Pass user instance, not ID
             notification = serializer.save(owner=user, detail=detail)
 
             response_data = {
@@ -54,9 +54,10 @@ class ListNotificationsView(APIView):
 
     def get(self, request):
         user = request.user
+        notification_status = request.query_params.get('status', 'new')  # Default to 'new' if not provided
 
         # Fetch all notifications where the user is the owner
-        notifications = Notification.objects.filter(owner=user).order_by('-created_at')
+        notifications = Notification.objects.filter(owner=user, status=notification_status).order_by('-created_at')
 
         response_data = []
 

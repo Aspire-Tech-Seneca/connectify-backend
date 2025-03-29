@@ -119,19 +119,9 @@ class RetrieveUserInfoView(APIView):
                         .prefetch_related('gallery__gallery_images')\
                         .get(id=user.id)
 
-        # Safely extract gallery images if gallery exists
-        gallery_images = []
-        if hasattr(user, 'gallery') and user.gallery:
-            gallery_images = [
-                'gallery_images/' + image.image_url.split('/')[-1]
-                for image in user.gallery.gallery_images.all()
-            ]
-                    
         serializer = UserProfileSerializer(user)
-        data = serializer.data
-        data['gallery_images'] = gallery_images
 
-        return Response(data, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 # User Profile Update API
@@ -367,13 +357,15 @@ class RecommendMatchupsView(APIView):
         excluded_user_ids = {uid for pair in excluded_users for uid in pair if uid != user.id}
         
         # Fetch users who have this interest excluding those in an active/blocked matchup
-        users = User.objects.filter(interest=interest).exclude(id__in=excluded_user_ids).exclude(id=user.id).select_related('profile_image', 'interest')   
+        users = User.objects.filter(interest=interest).exclude(id__in=excluded_user_ids).exclude(id=user.id)\
+                            .select_related('profile_image', 'gallery', 'interest')\
+                            .prefetch_related('gallery__gallery_images')   
 
         if not users.exists():
             return Response({"message": "No other users share your interest"}, status=status.HTTP_200_OK)
 
-        # Serialize user data
-        serializer = UserProfileSerializer(users, many=True)  # `many=True` because it's a list
+        serializer = UserProfileSerializer(users, many=True)     
+
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 

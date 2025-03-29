@@ -329,28 +329,56 @@ python manage.py runserver
    - Response Body: 
      A list of key:value pairs, such as:
      ```
-      [
+    [
+      {
+      "value": "travel",
+      "label": "Travel"
+      },
+      {
+      "value": "meditation",
+      "label": "Meditation"
+      },
+      {
+      "value": "running",
+      "label": "Running"
+      },
       {
       "value": "sports",
       "label": "Sports"
       },
       {
-      "value": "music",
-      "label": "Music"
+      "value": "hiking",
+      "label": "Hiking"
+      },
+      {
+      "value": "gardening",
+      "label": "Gardening"
       },
       {
       "value": "tech",
       "label": "Technology"
       },
       {
-      "value": "art",
-      "label": "Art"
+      "value": "music",
+      "label": "Music"
       },
       {
-      "value": "travel",
-      "label": "Travel"
+      "value": "photography",
+      "label": "Photography"
+      },
+      {
+      "value": "cinematography",
+      "label": "Cinematography"
+      },
+      {
+      "value": "baking",
+      "label": "Baking"
+      },
+      {
+      "value": "cooking",
+      "label": "Cooking"
       }
-      ]
+    ]     
      ```
     ![Get the list of interest choice](images/10-get-interest-list.png)
 

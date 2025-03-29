@@ -49,15 +49,31 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
 
 class ProfileImageSerializer(serializers.ModelSerializer):
+    image_name = serializers.SerializerMethodField()
+
     class Meta:
         model = ProfileImage
-        fields = ['image_url']
+        fields = ['image_name']
+
+    def get_image_name(self, obj):
+        if obj.image_url is None:
+            return None
+        
+        return f"profile_image/{obj.image_url.split('/')[-1]}"
 
 
 class GalleryImageSerializer(serializers.ModelSerializer):
+    image_name = serializers.SerializerMethodField()
+
     class Meta:
         model = GalleryImage
-        fields = ['image_url']
+        fields = ['image_name']
+
+    def get_image_name(self, obj):
+        if obj.image_url is None:
+            return None
+
+        return f"gallery_images/{obj.image_url.split('/')[-1]}"
 
 
 class GallerySerializer(serializers.ModelSerializer):
@@ -78,18 +94,19 @@ class UserProfileSerializer(serializers.ModelSerializer):
     profile_image = ProfileImageSerializer(read_only=True)
     gallery = GallerySerializer(read_only=True)
     interest = InterestSerializer(read_only=True)
+    gallery_images = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = ['id', 'email', 'fullname', 'age', 'bio', 'location', 
-                  'profile_image', 'gallery', 'interest']
+                  'profile_image', 'gallery', 'interest', 'gallery_images']
 
-    def get_gallery(self, obj):
+    def get_gallery_images(self, obj):
         gallery = getattr(obj, 'gallery', None)
         if gallery is not None:
-            return GallerySerializer(gallery).data
-        return None
-    
+            return [f"gallery_images/{image.image_url.split('/')[-1]}" for image in gallery.gallery_images.all()]
+        return []    
+
 
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(write_only=True, required=True)

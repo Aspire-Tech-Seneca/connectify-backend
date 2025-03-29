@@ -57,11 +57,18 @@ class GalleryImage(models.Model):
 
 class Interest(models.Model):
     interest_choices = (
-        ('sports', 'Sports'),
-        ('music', 'Music'),
-        ('tech', 'Technology'),
-        ('art', 'Art'),
         ('travel', 'Travel'),
+        ('meditation', 'Meditation'),
+        ('running', 'Running'),
+        ('sports', 'Sports'),
+        ('hiking', 'Hiking'),
+        ('gardening', 'Gardening'),
+        ('tech', 'Technology'),
+        ('music', 'Music'),
+        ('photography', 'Photography'),
+        ('cinematography', 'Cinematography'),
+        ('baking', 'Baking'),
+        ('cooking', 'Cooking'),
     )
 
     name = models.CharField(max_length=100, choices=interest_choices, null=False, blank=True)
