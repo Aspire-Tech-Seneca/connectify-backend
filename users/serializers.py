@@ -59,7 +59,7 @@ class ProfileImageSerializer(serializers.ModelSerializer):
         if obj.image_url is None:
             return None
         
-        return f"profile_image/{obj.image_url.split('/')[-1]}"
+        return f"profile_images/{obj.image_url.split('/')[-1]}"
 
 
 class GalleryImageSerializer(serializers.ModelSerializer):
