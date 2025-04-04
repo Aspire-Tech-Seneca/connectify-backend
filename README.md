@@ -181,16 +181,58 @@ python manage.py runserver
         "bio": null,
         "location": null,
         "profile_image":{
-          "image_url": "https://caa900connectifystorage.blob.core.windows.net/media/profile_images/6dd843ad-742b-4076-9a84-dd28ad14aa81.png"
+          "image_name": "profile_images/6dd843ad-742b-4076-9a84-dd28ad14aa81.png"
         },
         "interest":{
           "id": 1,
           "name": "sports"
         }
+        "gallery_images": 
+        [
+          "gallery_images/<image name 1>",
+          "gallery_images/<image name 2>"
+        ]
       }
 
      ```
     ![User's details](images/04-get-user-info.png)
+
+
+4-1. Get user's detailed info with user-id (no token needed)
+   - URL: http://127.0.0.1:8000/users/get-user-profile/
+   - Method: POST
+   - Request Header: Empty
+   - Request Body: (json file)
+     {
+      "user_id": {user_id}
+     }
+   - Response Body: (json file)
+     For example:
+     ```
+      {
+        "id": 1,
+        "email": "test@example.com",
+        "fullname": "test",
+        "age": 25,
+        "bio": null,
+        "location": null,
+        "profile_image":{
+          "image_name": "profile_images/6dd843ad-742b-4076-9a84-dd28ad14aa81.png"
+        },
+        "interest":{
+          "id": 1,
+          "name": "sports"
+        }
+        "gallery_images": 
+        [
+          "gallery_images/<image name 1>",
+          "gallery_images/<image name 2>"
+        ]
+      }
+
+     ```
+    ![User's details](images/04-get-user-info.png)
+
 
 5. User update
    - URL: http://127.0.0.1:8000/users/update/

@@ -124,6 +124,27 @@ class RetrieveUserInfoView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+# Retrieve User Info API
+class RetrieveOtherUserInfoView(APIView):
+    
+    def post(self, request):
+        user_id = request.data.get('user_id')
+        if not user_id:
+            return Response({"error": "User ID not provided"}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            user = User.objects.get(id=user_id)
+            # Optimize the query 
+            user = User.objects.select_related('profile_image', 'gallery', 'interest')\
+                            .prefetch_related('gallery__gallery_images')\
+                            .get(id=user.id)
+
+            serializer = UserProfileSerializer(user)
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
 # User Profile Update API
 class UpdateUserProfileView(APIView):
     def patch(self, request):
