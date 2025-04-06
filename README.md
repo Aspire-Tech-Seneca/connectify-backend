@@ -864,7 +864,7 @@ python manage.py runserver
 ### Reading Reviews (Public)
 
 - **Request Type**: GET  
-- **URL**: `http://localhost:8000/api/reviews/`  
+- **URL**: `http://localhost:8000/users/api/reviews/`  
 - **Response**:
 
 ```json
@@ -889,7 +889,7 @@ python manage.py runserver
 ### Creating a Review (Auth Required)
 
 - **Request Type**: POST  
-- **URL**: `http://localhost:8000/api/reviews/`  
+- **URL**: `http://localhost:8000/users/api/reviews/`  
 - **Headers**:
   - `Content-Type: application/json`
   - `Authorization: Token your_token_here`
