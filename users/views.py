@@ -6,8 +6,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from users.serializers import UserRegisterSerializer, UserProfileSerializer, \
                               ChangePasswordSerializer, InterestSerializer, ProfileImageSerializer, \
-                              GallerySerializer, MatchupSerializer, ReviewSerializer
-from users.models import ProfileImage, Interest, Matchup, Gallery, GalleryImage, Review
+                              GallerySerializer, MatchupSerializer, ReviewSerializer, CommunitySerializer
+from users.models import ProfileImage, Interest, Matchup, Gallery, GalleryImage, Review, CummunityReview
 from users.azure_utils import upload_image, delete_image
 from notifications.models import Notification
 from rest_framework.views import APIView
@@ -42,6 +42,33 @@ class ReviewListView(APIView):
             serializer.save(user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class CommunityReviewList(APIView):
+    """
+    List all community reviews or create a new review.
+    """
+    def get_permissions(self):
+        # GET requests don't require authentication
+        if self.request.method == 'GET':
+            return [AllowAny()]
+        # POST requests require authentication
+        return [IsAuthenticated()]
+    
+    def get(self, request, format=None):
+        # List all reviews - anyone can view
+        reviews = CummunityReview.objects.all()
+        serializer = CommunitySerializer(reviews, many=True)
+        return Response(serializer.data)
+    
+    def post(self, request, format=None):
+        # Create a new review - only authenticated users
+        data = request.data.copy()
+        serializer = CommunitySerializer(data=data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class ReviewDetailView(APIView):
     """
