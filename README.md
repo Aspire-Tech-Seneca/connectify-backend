@@ -867,22 +867,6 @@ python manage.py runserver
 - **URL**: `http://localhost:8000/users/api/reviews/`  
 - **Response**:
 
-```json
-[
-  {
-    "id": 1,
-    "user": {
-      "id": 1,
-      "email": "user@example.com",
-      "fullname": "Test User",
-      "location": "New York"
-    },
-    "comment": "Great product!",
-    "rating": 5,
-    "created_at": "2025-03-26T14:30:00Z"
-  }
-]
-```
 ![Change password](images/24-get-all-review.png)
 ---
 
@@ -901,22 +885,33 @@ python manage.py runserver
   "rating": 5
 }
 ```
-
 - **Response**:
+![Change password](images/25-create-review.png)
+
+
+### Reading Community Reviews (Public)
+
+- **Request Type**: GET  
+- **URL**: `http://localhost:8000/users/api/community-reviews/`  
+- **Description**: Retrieve all community reviews from all users
+- **Response**:
+![Change password](images/26-get-community-review.png)
+
+### Creating Community Reviews (Auth Required)
+
+- **Request Type**: POST  
+- **URL**: `http://localhost:8000/users/api/community-reviews/`  
+- **Description**: Submit a new review about your community experience
+- **Headers**:
+  - `Content-Type: application/json`
+  - `Authorization: Token your_token_here`
+- **Body**:
 
 ```json
 {
-  "id": 2,
-  "user": {
-    "id": 1,
-    "email": "user@example.com",
-    "fullname": "Test User",
-    "location": "New York"
-  },
-  "comment": "This product is amazing! I would definitely recommend it.",
-  "rating": 5,
-  "created_at": "2025-03-26T15:45:00Z"
+  "comment": "The community is very supportive and welcoming!",
+  "rating": 5
 }
 ```
-![Change password](images/25-create-review.png)
-
+- **Response**:
+![Change password](images/27-post-community-review.png)
