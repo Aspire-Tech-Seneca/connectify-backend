@@ -895,7 +895,9 @@ python manage.py runserver
 - **URL**: `http://localhost:8000/users/api/community-reviews/`  
 - **Description**: Retrieve all community reviews from all users
 - **Response**:
+
 ![Change password](images/26-get-community-review.png)
+---
 
 ### Creating Community Reviews (Auth Required)
 
