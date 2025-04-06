@@ -26,6 +26,7 @@ urlpatterns = [
     path('block-matchup-request/', views.BlockMatchupRequestAPIView.as_view(), name='block-matchuprequest'),
     # API endpoints
     path('api/reviews/', views.ReviewListView.as_view(), name='review-list'),
+    path('api/community-reviews/', views.CommunityReviewList.as_view(), name='community-review-list'),
     path('api/reviews/<int:pk>/', views.ReviewDetailView.as_view(), name='review-detail'),
     
 ]
