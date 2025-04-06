@@ -11,6 +11,14 @@ class Review(models.Model):
     def __str__(self):
         return f"Review by {self.user.fullname} - {self.rating} stars"
 
+class CummunityReview(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='communityreviews')
+    comment = models.TextField()
+    rating = models.IntegerField(choices=[(i, i) for i in range(1, 6)])  # 1-5 star rating
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Community Review by {self.user.fullname} - {self.rating} stars"
 
 class UserProfile(AbstractUser):
     email = models.EmailField(unique=True)
