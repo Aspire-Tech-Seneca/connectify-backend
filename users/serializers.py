@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth import get_user_model
 from users.models import Interest, ProfileImage,Gallery, \
-                         GalleryImage, Matchup, Review, UserProfile
+                         GalleryImage, Matchup, Review, UserProfile, CummunityReview
 
 
 User = get_user_model()
@@ -18,6 +18,13 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Review
+        fields = ['id', 'user', 'comment', 'rating', 'created_at']
+
+class CommunitySerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+
+    class Meta:
+        model = CummunityReview
         fields = ['id', 'user', 'comment', 'rating', 'created_at']
         
 
